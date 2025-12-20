@@ -13,12 +13,11 @@ namespace HuubsBspViewer {
       
       var instellingen = NativeWindowSettings.Default;
       instellingen.Size = new Vector2i(1280, 720);
-      instellingen.Title = "Quake 2 C# BSP Viewer";
+      instellingen.Title = "Huubs BSP Viewer";
 
       using (var venster = new BspVenster(GameWindowSettings.Default, instellingen, driehoeken)) {
         venster.Run();
       }
-      Console.WriteLine("Hello, World!");
     }
   }
 }

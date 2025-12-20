@@ -24,21 +24,45 @@ public class BspVenster : GameWindow {
     base.OnLoad();
     GL.ClearColor(0.1f, 0.1f, 0.2f, 1.0f); // Donkerblauwe achtergrond
     GL.Enable(EnableCap.DepthTest); // Zorgt dat muren achter elkaar correct getoond worden
-    GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
+    GL.PolygonMode(TriangleFace.FrontAndBack, PolygonMode.Line);
 
     _renderer.Voorbereiden(_mapData);
 
     // Simpele shaders (normaal laad je deze uit een bestand)
-    string vCode = @"#version 330 core
-                        layout (location = 0) in vec3 aPos;
-                        uniform mat4 mvp;
-                        void main() { gl_Position = vec4(aPos, 1.0) * mvp; }";
-    string fCode = @"#version 330 core
-                        out vec4 FragColor;
-                        void main() { FragColor = vec4(0.7, 0.7, 0.7, 1.0); }";
+    //string vCode = @"#version 330 core
+    //                    layout (location = 0) in vec3 aPos;
+    //                    uniform mat4 mvp;
+    //                    void main() { gl_Position = vec4(aPos, 1.0) * mvp; }";
+    string vCode = @"
+    #version 330 core
+    layout(location = 0) in vec3 aPos;
+    layout(location = 1) in vec3 aColor; // Nieuw: kleur input
+
+    out vec3 vColor;
+    uniform mat4 mvp;
+
+    void main() {
+      // FIX: De volgorde MOET mvp * vec4 zijn
+      gl_Position = mvp * vec4(aPos, 1.0);
+      vColor = aColor;
+    }
+    ";
+
+    //string fCode = @"#version 330 core
+    //                    out vec4 FragColor;
+    //void main() { FragColor = vec4(0.7, 0.7, 0.7, 1.0); }
+    //";
+    string fCode = @"
+    #version 330 core
+    in vec3 vColor;
+    out vec4 FragColor;
+
+    void main() {
+        FragColor = vec4(vColor, 1.0);
+    }";
 
     _shader = new BspShader(vCode, fCode);
-    
+
     _camera = new Camera(new Vector3(0, 100, 0), Size.X / (float)Size.Y);
     CursorState = CursorState.Grabbed; // Verberg muis en zet vast in venster
   }

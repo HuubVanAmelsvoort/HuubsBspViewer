@@ -28,6 +28,7 @@ public class BspLader {
           Lengte = reader.ReadInt32()
         };
       }
+      Console.WriteLine($"lumps: {lumps.Length}");
 
       // 3. Data inlezen met behulp van de offsets
       LeesHoekpunten(reader, lumps[(int)LumpType.Vertices]);
@@ -47,6 +48,8 @@ public class BspLader {
       float z = reader.ReadSingle();
       Hoekpunten.Add(new Vector3(x, y, z));
     }
+
+    Console.WriteLine($"Hoekpunten: {Hoekpunten.Count / 3}");
   }
 
   private void LeesRanden(BinaryReader reader, Lump lump) {
@@ -58,6 +61,8 @@ public class BspLader {
         V2 = reader.ReadUInt16()
       });
     }
+    Console.WriteLine($"Randen: {Randen.Count}");
+
   }
 
   private void LeesSurfEdges(BinaryReader reader, Lump lump) {
@@ -66,6 +71,7 @@ public class BspLader {
     for (int i = 0; i < aantal; i++) {
       SurfEdges.Add(reader.ReadInt32());
     }
+    Console.WriteLine($"SurfEdges: {SurfEdges.Count}");
   }
 
   private void LeesVlakken(BinaryReader reader, Lump lump) {
@@ -82,5 +88,6 @@ public class BspLader {
         LightmapOffset = reader.ReadInt32()
       });
     }
+    Console.WriteLine($"Vlakken: {Vlakken.Count}");
   }
 }
