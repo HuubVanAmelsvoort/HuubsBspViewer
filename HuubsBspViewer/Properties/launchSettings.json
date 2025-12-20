@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "HuubsBspViewer": {
+      "commandName": "Project",
+      "commandLineArgs": "D:\\werkdirectory\\SpelData\\baseq2uitgepakt\\baseq2\\maps\\base1.bsp"
+    }
+  }
+}

@@ -1,7 +1,6 @@
 ﻿using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 using System.Collections.Generic;
-
 public class BspRenderer {
   private int _vbo; // Vertex Buffer Object
   private int _vao; // Vertex Array Object

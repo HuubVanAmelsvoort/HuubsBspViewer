@@ -1,5 +1,4 @@
 ﻿using OpenTK.Graphics.OpenGL4;
-
 public class BspShader {
   public int Handle;
 

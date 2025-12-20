@@ -16,7 +16,6 @@ public class Camera {
     Positie = startPositie;
     AspectRatio = aspect;
   }
-
   public float Pitch {
     get => MathHelper.RadiansToDegrees(_pitch);
     set {
@@ -33,12 +32,9 @@ public class Camera {
       UpdateVectoren();
     }
   }
-
   public Vector3 Vooruit => _vooruit;
-
   public Matrix4 GetViewMatrix() => Matrix4.LookAt(Positie, Positie + _vooruit, _omhoog);
   public Matrix4 GetProjectionMatrix() => Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(60), AspectRatio, 1.0f, 10000.0f);
-
   private void UpdateVectoren() {
     _vooruit.X = MathF.Cos(_pitch) * MathF.Cos(_yaw);
     _vooruit.Y = MathF.Sin(_pitch);
