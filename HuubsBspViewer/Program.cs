@@ -10,11 +10,10 @@ namespace HuubsBspViewer {
       lader.LaadBestand(args[0]);
 
       BspBuilder bspBouwer = new();
-      var driehoeken = bspBouwer.GenereerDriehoeken(lader);
-      // 3. Zoek de startpositie (optioneel, anders gebruik je new Vector3(0, 50, 0))
-      BspEntityLader entityLader = new BspEntityLader();
+      List<TextureGroep> driehoeken = bspBouwer.GenereerDriehoeken(lader);
+
       // Als je de lader hebt uitgebreid met de Entities lump:
-      BspHelper.ZoekStartPositie(lader.EntiteitenTekst);
+      Vector3 startPos = DiverseHelpFuncties.ZoekStartPositie(lader.EntiteitenTekst);
 
       // 4. Start het venster met de lader erbij
       var gws = GameWindowSettings.Default;
@@ -24,11 +23,11 @@ namespace HuubsBspViewer {
       instellingen.Size = new Vector2i(1280, 720);
       instellingen.Title = "Huubs BSP Viewer";
 
-      using (var venster = new BspVenster(gws
+      using (var venster = new Venster(gws
       , nws
       , lader
       , driehoeken
-      , new Vector3(0, 50, 0)
+      , startPos
       )) {
         venster.Run();
       }

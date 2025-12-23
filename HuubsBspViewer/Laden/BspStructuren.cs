@@ -1,30 +1,10 @@
 ﻿using OpenTK.Mathematics;
 using System.Runtime.InteropServices;
-public enum LumpType {
-  Entities = 0,
-  Planes = 1,
-  Vertices = 2,
-  Visibility = 3,
-  Nodes = 4,
-  TexInfo = 5,
-  Faces = 6,
-  Lightmaps = 7,
-  Leaves = 8,
-  LeafFaces = 9,
-  LeafBrushes = 10,
-  Edges = 11,
-  SurfEdges = 12,
-  Models = 13,
-  Brushes = 14,
-  BrushSides = 15,
-  Pop = 16,
-  Areas = 17,
-  AreaPortals = 18
-}
+
 public struct BspHeader {
-  public int Magic;      // Moet "IBSP" zijn
-  public int Version;    // Moet 38 zijn voor Quake 2
-  public Lump[] Lumps;   // 19 lumps
+  public string MoetZijnIBSP;      // Moet "IBSP" zijn
+  public int Versie;    // Moet 38 zijn voor Quake 2
+  public Datablok[] Lumps;   // 19 lumps
 }
 public struct BspPlane {
   public Vector3 Normal;  // De richting waar het vlak naartoe wijst
@@ -58,7 +38,7 @@ public struct BspRand {
   public ushort V2; // Index naar hoekpunt 2
 }
 
-public struct Lump {
+public struct Datablok {
   public int Offset; // Waar in het bestand begint deze data
   public int Lengte; // Hoe groot is deze data-sectie
 }
@@ -72,4 +52,14 @@ public struct BspBlad {
   public ushort AantalBladVlakken;
   public ushort EersteBladBrush; // Gebruikt voor fysieke botsingen
   public ushort AantalBladBrushes;
+}
+public struct BspTexInfo {
+  public Vector3 U_As;      // Richting van de X-as van de textuur
+  public float U_Offset;    // Verschuiving op de X-as
+  public Vector3 V_As;      // Richting van de Y-as van de textuur
+  public float V_Offset;    // Verschuiving op de Y-as
+  public int Flags;         // Eigenschappen (bijv. glimmend of doorzichtig)
+  public int Waarde;
+  public string TextureNaam; // De naam van het bestand (bijv. "walls/brick01")
+  public int VolgendeTexInfo;
 }

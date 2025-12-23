@@ -19,7 +19,7 @@ public class BspBotsing {
     if (knoopIndex < 0) {
       int bladIndex = ~knoopIndex; // Bitwise NOT om de echte index te krijgen
       var blad = _data.Bladeren[bladIndex];
-      Console.WriteLine(blad.Inhoud);
+      //Console.WriteLine($"blad.Inhoud: {blad.Inhoud}");
       // In Quake 2 BSP: 
       // CONTENTS_SOLID is 1. We kijken of dit bitje aan staat.
       return (blad.Inhoud & 1) != 0;
@@ -29,7 +29,8 @@ public class BspBotsing {
     var vlak = _data.Planes[knoop.VlakIndex];
 
     // Quake assen naar OpenGL assen voor de berekening
-    Vector3 normaal = new Vector3(vlak.Normal.X, vlak.Normal.Z, -vlak.Normal.Y);
+    //Vector3 normaal = new Vector3(vlak.Normal.X, vlak.Normal.Z, -vlak.Normal.Y);
+    Vector3 normaal = new Vector3(vlak.Normal.X, vlak.Normal.Y, vlak.Normal.Z);
 
     // Bereken aan welke kant van het vlak het punt staat
     float afstand = Vector3.Dot(punt, normaal) - vlak.Afstand;
