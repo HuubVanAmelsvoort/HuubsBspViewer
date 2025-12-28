@@ -8,14 +8,22 @@ public class BspBuilder {
     Dictionary<string, TextureGroep> groepen = new Dictionary<string, TextureGroep>();
 
     foreach (var vlak in lader.Vlakken) {
+
       // 1. Haal de textuur-info en de naam op
       var texInfo = lader.TextureInfos[vlak.TextureInfoIndex];
 
       // Zorg dat je in je BspLader de namenlijst hebt gevuld (bijv. "walls/brick1")
       string texNaam = lader.TextureNamen[vlak.TextureInfoIndex];
 
+      // Volgende: speciale behandeling voor lucht-texturen
+      if((texInfo.Flags & DiverseHelpFuncties.LUCHT) != 0) {
+        // Dit is een sky-vlak. 
+        // Voeg het toe aan een speciale groep genaamd "sky"
+        texNaam = "internal_sky";
+      }
+
       // 2. Als we deze textuur nog niet eerder hebben gezien, maak een nieuwe lijst aan
-      if (!groepen.ContainsKey(texNaam)) {
+      if(!groepen.ContainsKey(texNaam)) {
         groepen[texNaam] = new TextureGroep {
           TextureNaam = texNaam
         };

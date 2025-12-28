@@ -13,21 +13,22 @@ namespace HuubsBspViewer {
       List<TextureGroep> driehoeken = bspBouwer.GenereerDriehoeken(lader);
 
       // Als je de lader hebt uitgebreid met de Entities lump:
-      Vector3 startPos = DiverseHelpFuncties.ZoekStartPositie(lader.EntiteitenTekst);
+      DiverseHelpFuncties.ZoekStartPositieEnLuchtNaam(lader.EntiteitenTekst);
 
       // 4. Start het venster met de lader erbij
-      var gws = GameWindowSettings.Default;
-      var nws = NativeWindowSettings.Default;
-      nws.Size = new Vector2i(1280, 720);
-      var instellingen = NativeWindowSettings.Default;
+      var GameWindowSettings = OpenTK.Windowing.Desktop.GameWindowSettings.Default;
+      var NativeWindowSettings = OpenTK.Windowing.Desktop.NativeWindowSettings.Default;
+      NativeWindowSettings.Size = new Vector2i(1280, 720);
+      var instellingen = OpenTK.Windowing.Desktop.NativeWindowSettings.Default;
       instellingen.Size = new Vector2i(1280, 720);
       instellingen.Title = "Huubs BSP Viewer";
 
-      using (var venster = new Venster(gws
-      , nws
+      using (Venster venster = new Venster(
+        GameWindowSettings
+      , NativeWindowSettings
       , lader
       , driehoeken
-      , startPos
+      , DiverseHelpFuncties.startPos
       )) {
         venster.Run();
       }

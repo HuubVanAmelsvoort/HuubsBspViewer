@@ -6,6 +6,12 @@ public class Tekenen {
   private Dictionary<string, (int vao, int vbo, int aantal)> _batches = new();
   public void Voorbereiden(List<TextureGroep> groepen) {
     foreach (var groep in groepen) {
+
+      if(groep.TextureNaam.Contains("sky")) {
+        var d = 1;
+        continue;
+      }
+
       string texNaam = groep.TextureNaam;
       float[] data = groep.VertexData.ToArray(); // Hier zet je de List om naar Array
       int aantalPunten = data.Length / 5;

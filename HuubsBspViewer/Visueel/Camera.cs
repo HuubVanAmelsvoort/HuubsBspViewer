@@ -4,7 +4,7 @@ public class Camera {
   // ===== Instellingen =====
   public float Snelheid = 800.0f;
   public float MuisGevoeligheid = 0.0025f;
-  public float GezichtsVeldFieldOfView = 75.0f;
+  public float GezichtsVeldFieldOfView = 75;
 
   // ===== Stand =====
   private Vector3 _positie;
@@ -43,9 +43,10 @@ public class Camera {
     _positie = startPos;
 
     // Quake2: X voorwaarts, Z omhoog
-    _rechtsLinks = MathHelper.DegreesToRadians(aspectRatio);
+    _rechtsLinks = MathHelper.DegreesToRadians(DiverseHelpFuncties.deStartHoek);
     _omhoogOmlaag = 0.0f;
-    Console.WriteLine($"Camera op positie: {_positie} _rechtsLinks: {_rechtsLinks} aspectRatio: {aspectRatio}");
+
+    Console.WriteLine($"Camera op positie: {_positie} _rechtsLinks: {_rechtsLinks} deStartHoek: {DiverseHelpFuncties.deStartHoek}");
 
     UpdateVectoren(); // !!! cruciaal bij start
   }
@@ -58,6 +59,7 @@ public class Camera {
     _vooruit.X = MathF.Cos(_omhoogOmlaag) * MathF.Cos(_rechtsLinks);
     _vooruit.Y = MathF.Cos(_omhoogOmlaag) * MathF.Sin(_rechtsLinks);
     _vooruit.Z = MathF.Sin(_omhoogOmlaag);
+    
     _vooruit = Vector3.Normalize(_vooruit);
 
     // Right & Up

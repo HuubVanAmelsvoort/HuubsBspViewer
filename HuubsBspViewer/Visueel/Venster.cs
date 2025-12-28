@@ -5,6 +5,8 @@ using OpenTK.Windowing.Desktop;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 public class Venster : GameWindow {
   private Tekenen _renderer;
+  private SkyboxRenderer _skyboxRenderer;
+  
   private Shader _shader;
   private static Camera _camera;
   private Matrix4 _cameraMatrix;
@@ -35,7 +37,9 @@ public class Venster : GameWindow {
   }
   protected override void OnLoad() {
     base.OnLoad();
-
+    GL.Enable(EnableCap.DebugOutput); // voor debuggen
+    GL.DebugMessageCallback(DiverseHelpFuncties.HuubDebugCallback, IntPtr.Zero);    
+    
     // 1. Scherm instellingen
     GL.ClearColor(0.2f, 0.3f, 0.3f, 1.0f); // Achtergrondkleur (donkergrijs/blauw)
     GL.Enable(EnableCap.DepthTest);        // Zorgt dat muren achter elkaar correct getekend worden
@@ -56,7 +60,7 @@ public class Venster : GameWindow {
       string pad = naam;
       if (!_textures.ContainsKey(pad)) {
         // Controleer of de PNG bestaat, anders laad een placeholder
-        string volledigePad = $"D:/werkdirectory/SpelData/baseq2uitgepakt/baseq2/textures/{pad}.png";
+        string volledigePad = $"{DiverseHelpFuncties.basispadQuake2}/textures/{pad}.png";
         if (File.Exists(volledigePad)) {
           _textures[naam] = new Texture(volledigePad);
         } else {
@@ -68,7 +72,24 @@ public class Venster : GameWindow {
     //_camera.Snelheid = 1f;
     //_camera.RechtsLinks = MathHelper.DegreesToRadians(180f); wordt al in camera gezet
     //_camera.UpdateVectoren();
+
+    // hier voor de lucht:
+    string luchtNaam = DiverseHelpFuncties.luchtNaam;
+    List<string> skyboxPaden = new List<string> {
+        $"{DiverseHelpFuncties.basispadQuake2}/env/{luchtNaam}rt.png", // Right (+X)
+        $"{DiverseHelpFuncties.basispadQuake2}/env/{luchtNaam}lf.png", // Left (-X)
+        $"{DiverseHelpFuncties.basispadQuake2}/env/{luchtNaam}up.png", // Up (+Y)
+        $"{DiverseHelpFuncties.basispadQuake2}/env/{luchtNaam}dn.png", // Down (-Y)
+        $"{DiverseHelpFuncties.basispadQuake2}/env/{luchtNaam}bk.png", // Back (+Z)
+        $"{DiverseHelpFuncties.basispadQuake2}/env/{luchtNaam}ft.png", // Front (-Z)
+    };
+
+    _skyboxRenderer = new SkyboxRenderer(skyboxPaden);
+
+    // In de BspRenderer: Zorg dat je de "internal_sky" groep niet tekent met de gewone shader
+    // Bijvoorbeeld door deze over te slaan in je BspRenderer.Tekenen loop
   }
+
   protected override void OnUpdateFrame(FrameEventArgs e) {
     base.OnUpdateFrame(e);
 
@@ -96,9 +117,12 @@ public class Venster : GameWindow {
   protected override void OnRenderFrame(FrameEventArgs e) {
     base.OnRenderFrame(e);
     GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+    
+    GL.DepthMask(false);
+    _skyboxRenderer.Render(_camera.GetViewMatrix(), _camera.GetProjectionMatrix());
+    GL.DepthMask(true);
 
     _shader.Gebruiken();
-
     _shader.SetMatrix4("model", Matrix4.Identity);
     _shader.SetMatrix4("view", _camera.GetViewMatrix());
     _shader.SetMatrix4("projection", _camera.GetProjectionMatrix());

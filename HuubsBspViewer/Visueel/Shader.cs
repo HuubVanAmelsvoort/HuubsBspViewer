@@ -7,13 +7,17 @@ public class Shader {
   public Shader() {
     // Compileer Vertex Shader
     int vShader = GL.CreateShader(ShaderType.VertexShader);
+    //DiverseHelpFuncties.ControleerOpFouten("CreateShader VertexShader: ");
+
     GL.ShaderSource(vShader, DiverseHelpFuncties.vertexCode);
     GL.CompileShader(vShader);
+    //DiverseHelpFuncties.ControleerOpFouten("CompileShader vShader: ");
 
     // Compileer Fragment Shader
     int fShader = GL.CreateShader(ShaderType.FragmentShader);
     GL.ShaderSource(fShader, DiverseHelpFuncties.fragmentCode);
     GL.CompileShader(fShader);
+    //DiverseHelpFuncties.ControleerOpFouten("CompileShader fShader: ");
 
     // Link naar Programma
     Handle = GL.CreateProgram();

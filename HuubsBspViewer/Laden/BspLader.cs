@@ -53,7 +53,7 @@ public class BspLader {
       LeesTextureInfos(reader, DataBlokken[(int)DatablokTiepe.TexInfo]);
       LeesShader();
 
-      DiverseHelpFuncties.ConsoleLog("BSP bestand geladen: " + pad, this);
+      DiverseHelpFuncties.ConsoleLog($"BSP bestand geladen: {pad}", this);
     }
   }
 
@@ -76,12 +76,21 @@ public class BspLader {
     }
     return DataBlokken;
   }
-
+  /**
+   * Leest de shader code uit bestanden in de Shaders map.
+   */
   private void LeesShader() {
     try {
       // Zorg ervoor dat "bestand.txt" in dezelfde map staat, of geef het volledige pad op.
-      DiverseHelpFuncties.fragmentCode = File.ReadAllText("Shaders/shader.frag"); // "shader.vert", "shader.frag"
-      DiverseHelpFuncties.vertexCode = File.ReadAllText("Shaders/shader.vert"); 
+      DiverseHelpFuncties.fragmentCode = File.ReadAllText("Shaders/shader.frag"); 
+      DiverseHelpFuncties.vertexCode = File.ReadAllText("Shaders/shader.vert");
+
+      if (!File.Exists("Shaders/lucht.frag") || !File.Exists("Shaders/lucht.frag")) {
+        Console.WriteLine("FOUT: Shader bestanden niet gevonden in de Shaders map.");
+      }
+
+      DiverseHelpFuncties.fragmentCodeLucht = File.ReadAllText("Shaders/lucht.frag");
+      DiverseHelpFuncties.vertexCodeLucht = File.ReadAllText("Shaders/lucht.vert");
       // Console.WriteLine(BspHelper.fragmentCode);
       // Console.WriteLine(BspHelper.vertexCode);
     } catch (Exception e) {
