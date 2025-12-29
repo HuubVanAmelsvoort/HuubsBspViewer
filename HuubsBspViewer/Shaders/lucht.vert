@@ -6,13 +6,17 @@ uniform mat4 projection;
 uniform mat4 view;
 
 void main() {
-    TexCoords = aPos;
+    // 1. Haal de aspect ratio correctie uit de projectie matrix
+    // In een standaard perspectief matrix is projection[0][0] gelijk aan 1 / (tan(fov/2) * aspect)
+    // We gebruiken dit om de breedte (X) van de TexCoords te herstellen.
+    float correction = projection[0][0] / projection[1][1]; 
     
-    // VERWIJDER POSITIE: mat3 verwijdert de laatste kolom (de locatie)
-    mat4 viewRotationOnly = mat4(mat3(view)); 
-    
-    vec4 pos = projection * viewRotationOnly * vec4(aPos, 1.0);
-    
-    // DE TRUC: Zet z gelijk aan w, zodat diepte altijd 1.0 is
+    // 2. Pas de correctie toe op de X-as (of Z/Y afhankelijk van je draaiing)
+    // Als de lucht te breed is, moet je vermenigvuldigen of delen door 'correction'
+    TexCoords = vec3(aPos.x * correction, aPos.z, -aPos.y); 
+
+    mat4 staticView = mat4(mat3(view));
+    vec4 pos = projection * staticView * vec4(aPos, 1.0);
     gl_Position = pos.xyww;
+
 }

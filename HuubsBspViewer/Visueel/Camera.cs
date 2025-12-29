@@ -1,4 +1,5 @@
 ﻿using OpenTK.Mathematics;
+using System.Drawing;
 
 public class Camera {
   // ===== Instellingen =====
@@ -77,19 +78,6 @@ public class Camera {
     UpdateVectoren();
   }
 
-  public void VerwerkToetsen(bool w, bool s, bool a, bool d, float deltaTime) {
-    float verplaatsing = Snelheid * deltaTime;
-
-    if (w)
-      _positie += _vooruit * verplaatsing;
-    if (s)
-      _positie -= _vooruit * verplaatsing;
-    if (a)
-      _positie -= _rechts * verplaatsing;
-    if (d)
-      _positie += _rechts * verplaatsing;
-  }
-
   // ===============================
   // ===== Matrices =====
   // ===============================
@@ -102,11 +90,19 @@ public class Camera {
   }
 
   public Matrix4 GetProjectionMatrix() {
-    return Matrix4.CreatePerspectiveFieldOfView(
-        MathHelper.DegreesToRadians(GezichtsVeldFieldOfView),
-        AspectRatio,
-        0.1f,
-        20000.0f
-    );
+    //var x = Matrix4.CreatePerspectiveFieldOfView(
+    //    MathHelper.DegreesToRadians( GezichtsVeldFieldOfView),
+    //    AspectRatio,
+    //    0.1f,
+    //    20000.0f);
+
+    var x = Matrix4.CreatePerspectiveFieldOfView(
+        MathHelper.DegreesToRadians(90f),
+        //Size.X / (float)Size.Y
+        AspectRatio
+       // 1.0f
+        , 0.1f, 1000f);
+    
+        return x;
   }
 }

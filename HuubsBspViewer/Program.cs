@@ -12,8 +12,7 @@ namespace HuubsBspViewer {
       BspBuilder bspBouwer = new();
       List<TextureGroep> driehoeken = bspBouwer.GenereerDriehoeken(lader);
 
-      // Als je de lader hebt uitgebreid met de Entities lump:
-      DiverseHelpFuncties.ZoekStartPositieEnLuchtNaam(lader.EntiteitenTekst);
+      DiverseHelpFuncties.ZoekStartPositieEnLuchtNaam(lader.entiteiten);
 
       // 4. Start het venster met de lader erbij
       var GameWindowSettings = OpenTK.Windowing.Desktop.GameWindowSettings.Default;

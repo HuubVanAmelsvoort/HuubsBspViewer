@@ -7,7 +7,7 @@ public class Venster : GameWindow {
   private Tekenen _renderer;
   private SkyboxRenderer _skyboxRenderer;
   
-  private Shader _shader;
+  private AlgemeneShader _shader;
   private static Camera _camera;
   private Matrix4 _cameraMatrix;
   private Vector3 _positie;
@@ -34,6 +34,9 @@ public class Venster : GameWindow {
     _mapData = mapData;
     DiverseHelpFuncties._botsing = _botsing;
     DiverseHelpFuncties._camera = _camera;
+
+    Console.WriteLine("Noclip is de N toets !!");
+
   }
   protected override void OnLoad() {
     base.OnLoad();
@@ -49,7 +52,7 @@ public class Venster : GameWindow {
     CursorState = CursorState.Grabbed;
 
     // 3. Shader initialisatie
-    _shader = new Shader();
+    _shader = new AlgemeneShader(DiverseHelpFuncties.vertexCode, DiverseHelpFuncties.fragmentCode);
     _shader.Gebruiken();
 
     // 4. Renderer voorbereiden
@@ -120,6 +123,15 @@ public class Venster : GameWindow {
     
     GL.DepthMask(false);
     _skyboxRenderer.Render(_camera.GetViewMatrix(), _camera.GetProjectionMatrix());
+
+    //var skyboxProjection = Matrix4.CreatePerspectiveFieldOfView(
+    //    MathHelper.DegreesToRadians(90f),
+    //    1.0f, // FORCEER HIER 1.0 in plaats van AspectRatio
+    //    0.1f,
+    //    1000f
+    //);
+    //_skyboxRenderer.Render(_camera.GetViewMatrix(), skyboxProjection);
+
     GL.DepthMask(true);
 
     _shader.Gebruiken();

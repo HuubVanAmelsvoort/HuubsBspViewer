@@ -63,3 +63,8 @@ public struct BspTexInfo {
   public string TextureNaam; // De naam van het bestand (bijv. "walls/brick01")
   public int VolgendeTexInfo;
 }
+public class Entiteit {
+  public int? Id { get; set; }                    // uit // Entity 318
+  public Dictionary<string, string> Attributen { get; set; }
+      = new Dictionary<string, string>();
+}

@@ -2,7 +2,7 @@
   "profiles": {
     "HuubsBspViewer": {
       "commandName": "Project",
-      "commandLineArgs": "D:\\werkdirectory\\SpelData\\baseq2uitgepakt\\baseq2\\maps\\base1.bsp"
+      "commandLineArgs": "D:\\werkdirectory\\SpelData\\baseq2uitgepakt\\baseq2\\maps\\base2.bsp"
     }
   }
 }

@@ -26,9 +26,6 @@ public static class DiverseHelpFuncties {
   internal static int LUCHT = 4;
   internal static string luchtNaam;
   internal static float deStartHoek;
-  //========================= Voor het verwerken startpos en dehoek ==========
-  private static int teller = 0;
-  private static bool gevonden = false;
 
   internal static void ConsoleLog(string tekst, BspLader lader) {
     Console.WriteLine("[HuubsBspViewer] " + tekst);
@@ -40,7 +37,7 @@ public static class DiverseHelpFuncties {
     Console.WriteLine("[HuubsBspViewer] Aantal planes in map: " + lader.Planes.Count);
     Console.WriteLine("[HuubsBspViewer] Aantal surfedges in map: " + lader.SurfEdges.Count);
     Console.WriteLine("[HuubsBspViewer] Aantal texture infos in map: " + lader.TextureInfos.Count);
-    Console.WriteLine("[HuubsBspViewer] Aantal entiteiten in map: " + lader.EntiteitenTekst.Split('\n').Length);
+    Console.WriteLine("[HuubsBspViewer] Aantal entiteiten in map: " + lader.entiteiten.Count);
 
   }
   // De callback methode:
@@ -101,60 +98,26 @@ public static class DiverseHelpFuncties {
   //    error = GL.GetError();
   //  }
   //}
-  public static void ZoekStartPositieEnLuchtNaam(string entiteitenTekst) {
-    DiverseHelpFuncties.luchtNaam = "space1"; // Standaard lucht
+  public static void ZoekStartPositieEnLuchtNaam(List<Entiteit> entiteiten) {
+    luchtNaam = "space1"; // Standaard lucht
 
-    // Nadat je de BSP hebt ingeladen
-    //string entitiesText = bspDocument.EntitiesLump; // De ruwe tekst uit Lump 0
-    string skyboxNaam = "space"; // Standaard fallback
-    foreach(string regel in entiteitenTekst.Split('\n')) {
-      if(regel.Contains("\"sky\"")) {
-        // De regel ziet eruit als: "sky" "unit1"
-        // We splitsen op de quotes en pakken de laatste waarde
-        var onderdelen = regel.Split('\"');
-        if(onderdelen.Length >= 4) {
-          luchtNaam = onderdelen[3];
-        }
-      } // einde lucht test
-
-      if(regel.Contains("\"info_player_start\"")) {
-        gevonden = true;
+    foreach(Entiteit entiteit in entiteiten) {
+      if (entiteit.Attributen.ContainsKey("sky")) {
+        luchtNaam = entiteit.Attributen["sky"];
       }
 
-      if(gevonden && regel.Contains("\"angle\"")) {
-        BepaalDeStartHoek(regel);
-      } // einde angle
-
-      if(gevonden) {
-        BepaalStartPositie(regel);
-      }
-
-      if(gevonden) {
-        teller++;
+      if(entiteit.Attributen["classname"].Contains("info_player_start")) {
+        BepaalStartPositie(entiteit);
+        BepaalDeStartHoek(entiteit);
       }
     } // einde foreach regel
   }
 
-  private static void BepaalStartPositie(string regel) {
-      /**
-       * {
-      "classname" "info_player_start"
-      "angle" "135"
-      "origin" "128 -320 32"
-      }
-      of:
-      {
-      "classname" "info_player_start"
-      "angle" "0"
-      "targetname" "base2"
-      "origin" "-1768 1536 128"
-      }
-      */
-
-      if(regel.Contains("\"origin\"") && teller >= 2) {
+  private static void BepaalStartPositie(Entiteit entiteit) {
+      if(entiteit.Attributen["origin"] != null) {
         // We splitsen op de quotes en pakken de laatste waarde
         // Haal de getallen uit de regel: "origin" "128 -256 16"
-        string waarden = regel.Replace("\"origin\"", "").Replace("\"", "").Trim();
+        string waarden = entiteit.Attributen["origin"];
         string[] assen = waarden.Split(' ');
 
         if(assen.Length == 3) {
@@ -164,15 +127,14 @@ public static class DiverseHelpFuncties {
           // Quake -> OpenGL: (X, Z, -Y) doet de camera al goed
           //              return new Vector3(x, z, -y); // OKE DIT IS GOED
           startPos = new Vector3(x, y, z);
-        } // assen
-        teller = 0; // reset teller
-        gevonden = false;
+          //startPos = new Vector3(832, 2292, -224); //TODO deze regel weghalen na testen
+      } // assen
     }
   }
-  private static void BepaalDeStartHoek(string regel) {
-    string waarde = regel.Replace("\"angle\"", "").Replace("\"", "").Trim();
+  private static void BepaalDeStartHoek(Entiteit entiteit) {
+    string waarde = entiteit.Attributen["angle"];
     deStartHoek = float.Parse(waarde);
-
+    //deStartHoek = 180f;
     // TODO misschien dat hier de starthoek nog omgezet moet worden
   }
 }

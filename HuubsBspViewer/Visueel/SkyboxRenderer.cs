@@ -7,46 +7,46 @@ public class SkyboxRenderer {
   private int _vao;
   private int _vbo;
   private int _cubemapHandle;
-  private SkyboxShader _LuchtShader;
+  private AlgemeneShader _LuchtShader;
 
   // De hoekpunten van een kubus die we tekenen
   private readonly float[] _vertices = {
-        // Posities
+        // Posities (1)
         -1.0f,  1.0f, -1.0f,
         -1.0f, -1.0f, -1.0f,
          1.0f, -1.0f, -1.0f,
          1.0f, -1.0f, -1.0f,
          1.0f,  1.0f, -1.0f,
         -1.0f,  1.0f, -1.0f,
-
+        // vlak (2)
         -1.0f, -1.0f,  1.0f,
         -1.0f, -1.0f, -1.0f,
         -1.0f,  1.0f, -1.0f,
         -1.0f,  1.0f, -1.0f,
         -1.0f,  1.0f,  1.0f,
         -1.0f, -1.0f,  1.0f,
-
+        // vlak (3)
          1.0f, -1.0f, -1.0f,
          1.0f, -1.0f,  1.0f,
          1.0f,  1.0f,  1.0f,
          1.0f,  1.0f,  1.0f,
          1.0f,  1.0f, -1.0f,
          1.0f, -1.0f, -1.0f,
-
+        // vlak (4)
         -1.0f, -1.0f,  1.0f,
         -1.0f,  1.0f,  1.0f,
          1.0f,  1.0f,  1.0f,
          1.0f,  1.0f,  1.0f,
          1.0f, -1.0f,  1.0f,
         -1.0f, -1.0f,  1.0f,
-
+        // vlak (5)
         -1.0f,  1.0f, -1.0f,
          1.0f,  1.0f, -1.0f,
          1.0f,  1.0f,  1.0f,
          1.0f,  1.0f,  1.0f,
         -1.0f,  1.0f,  1.0f,
         -1.0f,  1.0f, -1.0f,
-
+        // vlak (6)
         -1.0f, -1.0f, -1.0f,
         -1.0f, -1.0f,  1.0f,
          1.0f, -1.0f, -1.0f,
@@ -56,7 +56,7 @@ public class SkyboxRenderer {
     };
 
   public SkyboxRenderer(List<string> texturePaden) {
-    _LuchtShader = new SkyboxShader(); // Compileer de skybox shader
+    _LuchtShader = new AlgemeneShader(DiverseHelpFuncties.vertexCodeLucht, DiverseHelpFuncties.fragmentCodeLucht); // Compileer de skybox shader
 
     // 1. VAO en VBO voor de kubus
     _vao = GL.GenVertexArray();
@@ -106,6 +106,8 @@ public class SkyboxRenderer {
 
     GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
     GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
+
+    // TODO Huub de volgende 3 weer aanzetten als je wilt dat de skybox niet herhaalt
     GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
     GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
     GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureWrapR, (int)TextureWrapMode.ClampToEdge);

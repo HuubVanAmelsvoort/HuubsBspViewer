@@ -35,7 +35,7 @@ public class Tekenen {
       _batches[texNaam] = (VertexTabelInstructies, VertexBufferMagazijn, aantalPunten);
     }
   }
-  public void HetTekenen(Dictionary<string, Texture> geladenTextures, Shader shader) {
+  public void HetTekenen(Dictionary<string, Texture> geladenTextures, AlgemeneShader shader) {
     foreach (KeyValuePair<string, (int vao, int vbo, int aantal)> batch in _batches) {
       string texNaam = batch.Key;
       var (VertexArrayObjectInstructies, VertexBufferObjectMagazijn, aantal) = batch.Value;
@@ -47,7 +47,7 @@ public class Tekenen {
 
       // 2. Teken de muren die bij deze textuur horen
       GL.BindVertexArray(VertexArrayObjectInstructies);
-      GL.DrawArrays(PrimitiveType.Triangles, 0, aantal);
+      GL.DrawArrays(PrimitiveType.Triangles, 0, aantal); // TODO weer aanzetteten
     }
   }
 }
