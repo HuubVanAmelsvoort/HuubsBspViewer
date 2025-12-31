@@ -15,6 +15,7 @@ public static class DiverseHelpFuncties {
   //========================= Shader code ==============================
   public static Camera _camera; // Komt uit BspVenster
   public static Vector3 startPos = new Vector3(); // -1768 1536 128 uit entiteiten of 128 -320 32
+  public static Vector3 beweging = Vector3.Zero;
   //========================= Shader code ==============================
   internal static string vertexCode; // shader code wordt ingeladen vanuit bestand in BspLader
   internal static string fragmentCode;
@@ -26,6 +27,12 @@ public static class DiverseHelpFuncties {
   internal static int LUCHT = 4;
   internal static string luchtNaam;
   internal static float deStartHoek;
+
+  //========================= Toetsen status ==============================
+  public static bool wIngedrukt;
+  public static bool sIngedrukt;
+  public static bool dIngedrukt;
+  public static bool aIngedrukt;
 
   internal static void ConsoleLog(string tekst, BspLader lader) {
     Console.WriteLine("[HuubsBspViewer] " + tekst);
@@ -73,31 +80,20 @@ public static class DiverseHelpFuncties {
     }
     _vorigeMuisPositie = new Vector2(muis.X, muis.Y);
   }
-  internal static Vector3 BerekenBeweging(KeyboardState input, float tijd) {
-    float snelheid = 500.0f * tijd;
-    Vector3 beweging = Vector3.Zero;
+  internal static void BerekenBeweging(float tijd) {
+    float snelheid = 200.0f * tijd;
 
-    if(input.IsKeyDown(Keys.W)) beweging += _camera.Vooruit;
-    if(input.IsKeyDown(Keys.S)) beweging -= _camera.Vooruit;
+    if(wIngedrukt) beweging += _camera.Vooruit;
+    if(sIngedrukt) beweging -= _camera.Vooruit;
+    if(dIngedrukt) beweging += _camera.Rechts;
+    if(aIngedrukt) beweging -= _camera.Rechts;
 
     // GEBRUIK DE RECHTS VECTOR VAN DE CAMERA
     // De camera class berekent deze al correct met Vector3.Cross(Vooruit, UnitZ)
-    if(input.IsKeyDown(Keys.A)) beweging -= _camera.Rechts;
-    if(input.IsKeyDown(Keys.D)) beweging += _camera.Rechts;
-
     if(beweging != Vector3.Zero) {
-      return Vector3.Normalize(beweging) * snelheid;
+      beweging = Vector3.Normalize(beweging) * snelheid;
     }
-    return Vector3.Zero;
   }
-
-  //internal static void ControleerOpFouten(string herkomst) {
-  //  var error = GL.GetError();
-  //  while (error != OpenTK.Graphics.OpenGL4.ErrorCode.NoError) {
-  //    Console.WriteLine($"In {herkomst} fout: {error}");
-  //    error = GL.GetError();
-  //  }
-  //}
   public static void ZoekStartPositieEnLuchtNaam(List<Entiteit> entiteiten) {
     luchtNaam = "space1"; // Standaard lucht
 

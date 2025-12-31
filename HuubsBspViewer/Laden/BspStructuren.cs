@@ -1,4 +1,5 @@
-﻿using OpenTK.Mathematics;
+﻿using OpenTK.Graphics.OpenGL4;
+using OpenTK.Mathematics;
 using System.Runtime.InteropServices;
 
 public struct BspHeader {
@@ -63,8 +64,34 @@ public struct BspTexInfo {
   public string TextureNaam; // De naam van het bestand (bijv. "walls/brick01")
   public int VolgendeTexInfo;
 }
+public struct BspModel {
+  public Vector3 Mins;    // De kleinste hoek van de bounding box
+  public Vector3 Maxs;    // De grootste hoek van de bounding box
+  public Vector3 Origin;  // Het middelpunt (vaak 0,0,0 voor statische triggers)
+  public int HeadNode;    // Startpunt in de BSP-boom (niet nodig voor simpele triggers)
+  public int FirstFace;   // Index naar de eerste face van dit model
+  public int NumFaces;    // Aantal faces
+}
 public class Entiteit {
   public int? Id { get; set; }                    // uit // Entity 318
   public Dictionary<string, string> Attributen { get; set; }
       = new Dictionary<string, string>();
+}
+public class TriggerZone {
+  internal Vector3 Origin;
+  internal float Delay;
+  internal string TargetName;
+
+  public string Classname { get; set; }
+  public string Target { get; set; }
+  public Vector3 Mins { get; set; }
+  public Vector3 Maxs { get; set; }
+  public string Spawnflags { get; internal set; }
+
+  // Controleer of een punt (bijv. de speler) in de trigger staat
+  public bool IsPuntInTrigger(Vector3 punt) {
+    return (punt.X >= Mins.X && punt.X <= Maxs.X) &&
+           (punt.Y >= Mins.Y && punt.Y <= Maxs.Y) &&
+           (punt.Z >= Mins.Z && punt.Z <= Maxs.Z);
+  }
 }

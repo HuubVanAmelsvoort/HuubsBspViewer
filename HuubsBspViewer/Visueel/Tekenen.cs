@@ -1,18 +1,22 @@
 ﻿using OpenTK.Graphics.OpenGL4;
-using OpenTK.Mathematics;
-using System.Collections.Generic;
 public class Tekenen {
   // We slaan nu per textuur de GPU-data op
   private Dictionary<string, (int vao, int vbo, int aantal)> _batches = new();
   public void Voorbereiden(List<TextureGroep> groepen) {
     foreach (var groep in groepen) {
-
-      if(groep.TextureNaam.Contains("sky")) {
-        var d = 1;
+      string texNaam = groep.TextureNaam.ToLower(); // Veiligheidshalve lowercase
+      if(texNaam.Contains("sky")
+      || texNaam.Contains("trigger")
+      || texNaam.Contains("clip")
+      || texNaam.Contains("null")
+      || texNaam.Contains("hint")
+      || texNaam.Contains("skip")
+      ) {
         continue;
       }
+      //Console.WriteLine($"Voorbereiden textuur: {texNaam}");
 
-      string texNaam = groep.TextureNaam;
+      texNaam = groep.TextureNaam;
       float[] data = groep.VertexData.ToArray(); // Hier zet je de List om naar Array
       int aantalPunten = data.Length / 5;
 
@@ -35,6 +39,10 @@ public class Tekenen {
       _batches[texNaam] = (VertexTabelInstructies, VertexBufferMagazijn, aantalPunten);
     }
   }
+
+  /**
+   * Tekent alle batches die we hebben voorbereid
+   */
   public void HetTekenen(Dictionary<string, Texture> geladenTextures, AlgemeneShader shader) {
     foreach (KeyValuePair<string, (int vao, int vbo, int aantal)> batch in _batches) {
       string texNaam = batch.Key;
@@ -47,7 +55,7 @@ public class Tekenen {
 
       // 2. Teken de muren die bij deze textuur horen
       GL.BindVertexArray(VertexArrayObjectInstructies);
-      GL.DrawArrays(PrimitiveType.Triangles, 0, aantal); // TODO weer aanzetteten
+      GL.DrawArrays(PrimitiveType.Triangles, 0, aantal); 
     }
   }
 }

@@ -1,5 +1,6 @@
 ﻿using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 public class AlgemeneShader { // basis om vanaf te leiden
   public int Handle { get; private set; }
@@ -58,5 +59,13 @@ public class AlgemeneShader { // basis om vanaf te leiden
       string infoLog = GL.GetProgramInfoLog(program);
       Console.WriteLine($"ERROR: Shader Linken mislukt:\n{infoLog}");
     }
+  }
+
+  internal void SetVector4(string naam, Vector4 data) {
+    // 1. Zoek de locatie van de variabele in de shader (bijv. "model" of "view")
+    int location = GL.GetUniformLocation(Handle, naam);
+
+    // 2. Stuur de matrix-data naar de GPU
+    GL.Uniform4(location, data.X, data.Y, data.Z, data.W);
   }
 }
