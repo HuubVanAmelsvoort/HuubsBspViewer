@@ -34,7 +34,7 @@ public class Camera {
     get => _rechtsLinks;
     set => _rechtsLinks = value;
   }
-  public float Pitch {
+  public float OmhoogOmlaag {
     get => _omhoogOmlaag;
     set => _omhoogOmlaag = value;
   }

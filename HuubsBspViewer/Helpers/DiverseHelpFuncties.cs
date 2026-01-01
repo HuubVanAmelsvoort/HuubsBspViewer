@@ -34,6 +34,8 @@ public static class DiverseHelpFuncties {
   public static bool dIngedrukt;
   public static bool aIngedrukt;
 
+  public static GeluidHelper geluidHelper = new();
+
   internal static void ConsoleLog(string tekst, BspLader lader) {
     Console.WriteLine("[HuubsBspViewer] " + tekst);
     Console.WriteLine("[HuubsBspViewer] Aantal vlakken in map: " + lader.Vlakken.Count);

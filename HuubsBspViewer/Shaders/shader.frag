@@ -2,7 +2,6 @@
 out vec4 FragColor;
 in vec2 texCoord;
 
-
 uniform sampler2D texture0;
 
 uniform vec4 debugColor; // voor triggers testen

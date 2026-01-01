@@ -1,6 +1,4 @@
 ﻿using OpenTK.Mathematics;
-using System.Reflection.Metadata.Ecma335;
-using System.Reflection.PortableExecutable;
 using System.Text;
 using System.Text.RegularExpressions;
 public class BspLader {
@@ -39,13 +37,17 @@ public class BspLader {
   public List<TriggerZone> triggers = new List<TriggerZone>();
   public List<TriggerZone> logischetriggers = new List<TriggerZone>();
   public List<Entiteit> entiteiten = new List<Entiteit>();
+  public List<LuidSpreker> luidsprekers = new List<LuidSpreker>();
+  public List<Target> targets = new List<Target>();
   public List<BspModel> Models = new List<BspModel>();
+
   //================= Voor Entiteiten ==========================
   private static readonly Regex entityHeaderRegex =
           new Regex(@"//\s*Entity\s*(\d+)", RegexOptions.Compiled);
 
   private static readonly Regex keyValueRegex =
       new Regex("\"([^\"]+)\"\\s+\"([^\"]+)\"", RegexOptions.Compiled);
+
   //================= Entiteiten ==========================
 
   public void LaadBestand(string pad) {
@@ -281,68 +283,22 @@ public class BspLader {
   }
   public void LaadTriggers() {
     triggers = new List<TriggerZone>();
-    //var entiteiten = ParseEntities(entitiesText); // Je bestaande parser
 
     foreach(Entiteit entiteit in entiteiten) {
       if(entiteit.Attributen.ContainsKey("classname")
       && entiteit.Attributen["classname"].StartsWith("trigger_")) {
-        if(entiteit.Attributen.ContainsKey("model") && entiteit.Attributen["model"].StartsWith("*")) {
-          string modelSleutel = entiteit.Attributen["model"]; // bijv. "*1"
-          int modelIndex = int.Parse(modelSleutel.Substring(1));
-          if(modelIndex < Models.Count) {
-            // Haal de mins/maxs uit de Models Lump van de BSP
-            var bspModel = Models[modelIndex];
-            TriggerZone trigger = new TriggerZone();
-            trigger.Classname = entiteit.Attributen["classname"];
-            trigger.Mins = bspModel.Mins;
-            trigger.Maxs = bspModel.Maxs;
-            trigger.Target = "";
-            if(entiteit.Attributen.ContainsKey("target")) {
-              trigger.Target = entiteit.Attributen["target"];
-            }
-            if(entiteit.Attributen.ContainsKey("spawnflags")) {
-              trigger.Spawnflags = entiteit.Attributen["spawnflags"];
-            }
-
-            triggers.Add(trigger);
-          } // modelIndex check
-        } // model key check
+        VerwerkTrigger(entiteit);
+      } // model key check
         else {
-          // Dit is een logische trigger (zoals trigger_relay)
-          // Deze hoef je niet te laden voor collision detectie, 
-          // maar wel voor de logica (als 'target' van iets anders).
-          TriggerZone trigger = new TriggerZone();
-          trigger.Classname = entiteit.Attributen["classname"];
-
-          trigger.Mins = new Vector3(); // heeft geen model
-          trigger.Maxs = new Vector3();
-
-          trigger.Target = "";
-          if(entiteit.Attributen.ContainsKey("target")) {
-            trigger.Target = entiteit.Attributen["target"];
-          }
-          if(entiteit.Attributen.ContainsKey("targetname")) {
-            trigger.TargetName = entiteit.Attributen["targetname"];
-          }
-          if(entiteit.Attributen.ContainsKey("origin")) {
-            string[] tekst = entiteit.Attributen["origin"].Split();
-            trigger.Origin = new Vector3(float.Parse(tekst[0]), float.Parse(tekst[1]), float.Parse(tekst[2]));
-          }
-          if(entiteit.Attributen.ContainsKey("delay")) {
-            if (entiteit.Attributen["delay"].StartsWith(".")) {
-              trigger.Delay = float.Parse("0" + entiteit.Attributen["delay"]);
-            } else {
-              trigger.Delay = float.Parse(entiteit.Attributen["delay"]);
-            }
-          }
-
-
-          logischetriggers.Add(trigger);
-          Console.WriteLine($"Logische trigger in aparte tabel logischetriggers: {entiteit.Attributen["classname"]}");
-        }
+        VerwerkLogischeTrigger(entiteit);
       }
-    }
+      if(entiteit.Attributen.ContainsKey("classname")
+      && entiteit.Attributen["classname"].StartsWith("target_")) {
+        VerwerkTarget(entiteit);
+      }
+    } // eind foreach
   }
+
   public void ZoekTriggers() {
     // Stel je hebt een lijst met Dictionary<string, string> van je entities
     foreach(var ent in entiteiten) {
@@ -355,6 +311,105 @@ public class BspLader {
         // TODO hier nog wat mee nu hele functie uitgeschakeld
         // Hier kun je een Trigger object maken dat je kunt renderen of checken op collision
       }
+    }
+  }
+  private void VerwerkTarget(Entiteit entiteit) {
+    Target target = new Target();
+    target.Classnaam = entiteit.Attributen["classname"];
+    if(entiteit.Attributen.ContainsKey("targetname")) {
+      target.TargetName = entiteit.Attributen["targetname"];
+    }
+    if(entiteit.Attributen.ContainsKey("origin")) {
+      string[] tekst = entiteit.Attributen["origin"].Split();
+      target.Positie = new Vector3(float.Parse(tekst[0]), float.Parse(tekst[1]), float.Parse(tekst[2]));
+    }
+
+    switch(target.Classnaam) {
+      case "target_speaker":
+        // Dit is een target entiteit (zoals target_speaker)
+        LuidSpreker luidspreker = new LuidSpreker(target.Positie);
+        luidspreker.Classnaam = target.Classnaam;
+        luidspreker.TargetName = target.TargetName;
+        luidspreker.Positie = new Vector3();
+        luidspreker.NoisePath = "";
+        luidspreker.IsLooping = false;
+
+        if(entiteit.Attributen.ContainsKey("noise")) {
+          luidspreker.NoisePath = entiteit.Attributen["noise"];
+        }
+        if(entiteit.Attributen.ContainsKey("looped")) {
+          luidspreker.IsLooping = entiteit.Attributen["looped"] == "1";
+        }
+        luidsprekers.Add(luidspreker);
+        Console.WriteLine($"luidspreker in luidspreker: target: {luidspreker.TargetName} / {luidspreker.NoisePath} / {luidspreker.Positie}");
+        break;
+      default:
+        if(entiteit.Attributen.ContainsKey("message")) {
+          target.Message = entiteit.Attributen["message"];
+        }
+        targets.Add(target);
+        Console.WriteLine($"Target default: {target.TargetName} / {target.Positie} / {target.Message}");
+        return;
+    }
+  }
+
+  private void VerwerkLogischeTrigger(Entiteit entiteit) {
+    // Dit is een logische trigger (zoals trigger_relay)
+    // Deze hoef je niet te laden voor collision detectie, 
+    // maar wel voor de logica (als 'target' van iets anders).
+    TriggerZone trigger = new TriggerZone();
+    trigger.Classname = entiteit.Attributen["classname"];
+
+    trigger.Mins = new Vector3(); // heeft geen model
+    trigger.Maxs = new Vector3();
+
+    trigger.Target = "";
+    if(entiteit.Attributen.ContainsKey("target")) {
+      trigger.Target = entiteit.Attributen["target"];
+    }
+    if(entiteit.Attributen.ContainsKey("targetname")) {
+      trigger.TargetName = entiteit.Attributen["targetname"];
+    }
+    if(entiteit.Attributen.ContainsKey("origin")) {
+      string[] tekst = entiteit.Attributen["origin"].Split();
+      trigger.Origin = new Vector3(float.Parse(tekst[0]), float.Parse(tekst[1]), float.Parse(tekst[2]));
+    }
+    if(entiteit.Attributen.ContainsKey("delay")) {
+      if(entiteit.Attributen["delay"].StartsWith(".")) {
+        trigger.Delay = float.Parse("0" + entiteit.Attributen["delay"]);
+      } else {
+        trigger.Delay = float.Parse(entiteit.Attributen["delay"]);
+      }
+    }
+
+    logischetriggers.Add(trigger);
+//    Console.WriteLine($"Logische trigger in aparte tabel logischetriggers: {entiteit.Attributen["classname"]}");
+  }
+
+  private void VerwerkTrigger(Entiteit entiteit) {
+    if(entiteit.Attributen.ContainsKey("model") && entiteit.Attributen["model"].StartsWith("*")) {
+      string modelSleutel = entiteit.Attributen["model"]; // bijv. "*1"
+      int modelIndex = int.Parse(modelSleutel.Substring(1));
+      if(modelIndex < Models.Count) {
+        // Haal de mins/maxs uit de Models Lump van de BSP
+        var bspModel = Models[modelIndex];
+        TriggerZone trigger = new TriggerZone();
+        trigger.Classname = entiteit.Attributen["classname"];
+        trigger.Mins = bspModel.Mins;
+        trigger.Maxs = bspModel.Maxs;
+        trigger.Target = "";
+        if(entiteit.Attributen.ContainsKey("target")) {
+          trigger.Target = entiteit.Attributen["target"];
+        }
+        if(entiteit.Attributen.ContainsKey("spawnflags")) {
+          trigger.Spawnflags = entiteit.Attributen["spawnflags"];
+        }
+        if(entiteit.Attributen.ContainsKey("message")) {
+          trigger.Message = entiteit.Attributen["message"];
+        }
+
+        triggers.Add(trigger);
+      } // modelIndex check
     }
   }
 }

@@ -6,7 +6,13 @@ using OpenTK.Windowing.Desktop;
 namespace HuubsBspViewer {
   internal class Program {
     static void Main(string[] args) {
+      if (args.Length < 1) {
+        Console.WriteLine("Gebruik: HuubsBspViewer <pad_naar_bsp_bestand>");
+        return;
+      }
+
       BspLader lader = new BspLader();
+
       lader.LaadBestand(args[0]);
 
       BspBuilder bspBouwer = new();

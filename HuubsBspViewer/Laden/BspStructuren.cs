@@ -1,4 +1,4 @@
-﻿using OpenTK.Graphics.OpenGL4;
+﻿using OpenTK.Audio.OpenAL;
 using OpenTK.Mathematics;
 using System.Runtime.InteropServices;
 
@@ -78,20 +78,95 @@ public class Entiteit {
       = new Dictionary<string, string>();
 }
 public class TriggerZone {
-  internal Vector3 Origin;
-  internal float Delay;
-  internal string TargetName;
-
+  public Vector3 Origin;
+  public float Delay;
+  public string TargetName;
+  public bool WasAlGeactiveerd;
+  public Vector4 DebugColor;
   public string Classname { get; set; }
   public string Target { get; set; }
   public Vector3 Mins { get; set; }
   public Vector3 Maxs { get; set; }
   public string Spawnflags { get; internal set; }
+  public string Message { get; internal set; }
 
   // Controleer of een punt (bijv. de speler) in de trigger staat
   public bool IsPuntInTrigger(Vector3 punt) {
     return (punt.X >= Mins.X && punt.X <= Maxs.X) &&
            (punt.Y >= Mins.Y && punt.Y <= Maxs.Y) &&
            (punt.Z >= Mins.Z && punt.Z <= Maxs.Z);
+  }
+}
+public struct Target {
+  public string Classnaam { get; set; }
+  public string TargetName { get; set; }
+  public Vector3 Positie { get; set; }
+  public string Message { get; set; }
+}
+public class LuidSpreker {
+  private int _bronId;
+  //private GeluidHelper _geluidHelper;
+  //internal object Noise;
+
+  public string Classnaam;
+  public string TargetName;
+  public string NoisePath; // bijv. "world/amb1.wav"
+  public Vector3 Positie;
+  public bool IsLooping;
+
+  public LuidSpreker(Vector3 positie) {
+    //_geluidHelper = geluidHelper;
+    _bronId = AL.GenSource();
+
+    //  TODO volgende regels als je geluid op wereldpositie wilt
+    //AL.Source(_bronId, ALSource3f.Position, positie.X, positie.Y, positie.Z);
+
+    AL.Source(_bronId, ALSourceb.SourceRelative, true);
+    AL.Source(_bronId, ALSource3f.Position, 0, 0, 0);
+  }
+  public void Speel(string bestandPad) {
+   
+    if(_bronId == 0) {
+      _bronId = AL.GenSource();
+      // Herstel de instellingen
+      AL.Source(_bronId, ALSourceb.SourceRelative, true);
+      AL.Source(_bronId, ALSourcef.Gain, 1.0f);
+    }
+
+    int buffer = DiverseHelpFuncties.geluidHelper.HaalBuffer(bestandPad);
+    if(buffer > 0) {
+      AL.Source(_bronId, ALSourcei.Buffer, buffer);
+      AL.Source(_bronId, ALSourcef.Gain, 1.0f);
+      AL.SourcePlay(_bronId);
+
+      var err = AL.GetError();
+      if(err != ALError.NoError) {
+        Console.WriteLine($"OpenAL Fout bij {bestandPad}: {err}");
+      }
+    }
+    // Controleer of de buffer geldig is
+    if(buffer <= 0) {
+      Console.WriteLine($"FOUT: Buffer ongeldig voor {bestandPad}. Is het bestand een 8/16-bit WAV?");
+      return;
+    }
+
+    //AL.Source(_bronId, ALSourcei.Buffer, buffer);
+    //// Controleer op fouten DIRECT na het koppelen
+    //var err = AL.GetError();
+    //if(err != ALError.NoError) {
+    //  Console.WriteLine($"OpenAL Fout bij koppelen buffer: {err} (Handle: {buffer})");
+    //}
+
+    //// Forceer volume en zorg dat het niet loopend is voor een trigger
+    
+    //AL.Source(_bronId, ALSourcef.Gain, 1.0f);
+    //AL.Source(_bronId, ALSourceb.Looping, IsLooping);
+
+    //AL.SourcePlay(_bronId);
+
+    var error = AL.GetError();
+    if(error != ALError.NoError) {
+      Console.WriteLine($"OpenAL Fout bij {bestandPad}: {AL.GetErrorString(error)}");
+    }
   }
 }
