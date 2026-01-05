@@ -44,9 +44,9 @@ public class BspBotsing {
   /**
    * afkomstig van CheckCollision
    */
-  public bool ControleerBotsing(Vector3 spelerPos, TriggerZone zone) {
-    return spelerPos.X >= zone.Mins.X && spelerPos.X <= zone.Maxs.X &&
-           spelerPos.Y >= zone.Mins.Y && spelerPos.Y <= zone.Maxs.Y &&
-           spelerPos.Z >= zone.Mins.Z && spelerPos.Z <= zone.Maxs.Z;
+  public bool ControleerBotsing(Vector3 spelerPos, Trigger zone) {
+    return spelerPos.X >= zone.MinimumCoordinaat.X && spelerPos.X <= zone.MaximumCoordinaat.X &&
+           spelerPos.Y >= zone.MinimumCoordinaat.Y && spelerPos.Y <= zone.MaximumCoordinaat.Y &&
+           spelerPos.Z >= zone.MinimumCoordinaat.Z && spelerPos.Z <= zone.MaximumCoordinaat.Z;
   }
 }

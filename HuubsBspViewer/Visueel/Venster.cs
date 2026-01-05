@@ -4,24 +4,24 @@ using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using OpenTK.Windowing.GraphicsLibraryFramework;
-using static TriggerZone;
+using static Trigger;
 public class Venster : GameWindow {
   private Tekenen _renderer;
   private SkyboxRenderer _skyboxRenderer;
+  private MarkerRenderer _markerRenderer;
 
   //======== Triggers ==============================================
   private UnitCube _unitCube;// = new UnitCube();
-  private List<TriggerZone> _actieveTriggers = new List<TriggerZone>();
+  private List<Trigger> _actieveTriggers = new List<Trigger>();
   //private UnitCube _debugCube;
-  private List<TriggerZone> _triggers;// = new List<TriggerZone>();
-  private List<TriggerZone> _logischetriggers;// = new List<TriggerZone>();
+  private List<Trigger> _triggers;// = new List<TriggerZone>();
+  private List<DoelClass> _doelen;
+  private List<Trigger> _logischetriggers;// = new List<TriggerZone>();
   //======== Triggers ==============================================
-
 
   private AlgemeneShader _shader;
   private static Camera _camera;
-  //private Matrix4 _cameraMatrix;
-  //private Vector3 _positie;
+  GeluidHelper geluidHelper = new GeluidHelper();
 
   private BspBotsing _botsing;
   private BspLader _lader;
@@ -48,6 +48,7 @@ public class Venster : GameWindow {
     _camera = new Camera(startPositie, Size.X / (float)Size.Y);
     //_positie = startPositie;
     _triggers = _lader.triggers;
+    _doelen = _lader.doelen;
     _logischetriggers = _lader.logischetriggers;
     // De mapData bewaren we om later in OnLoad naar de GPU te sturen
     _mapData = mapData;
@@ -59,13 +60,10 @@ public class Venster : GameWindow {
   protected override void OnLoad() {
     base.OnLoad();
 
-    // In je OnLoad of Initialisatie
-    int geluidBuffer = WavLoader.LoadWav($"{DiverseHelpFuncties.basispadQuake2}/sound/world/pump1.wav");
-    LuidSpreker luidspreker = new LuidSpreker (_camera.Positie);
-    luidspreker.Speel($"{DiverseHelpFuncties.basispadQuake2}/sound/world/pump1.wav");
+    AlleGeluidenDoen();
 
     int bron = AL.GenSource();
-   
+
     _unitCube = new UnitCube();
     // Laad hier je triggers in uit de BSP (is al gedaan in de constructor)
 
@@ -122,9 +120,32 @@ public class Venster : GameWindow {
     };
 
     _skyboxRenderer = new SkyboxRenderer(skyboxPaden);
-
+    _markerRenderer = new();
     // In de BspRenderer: Zorg dat je de "internal_sky" groep niet tekent met de gewone shader
     // Bijvoorbeeld door deze over te slaan in je BspRenderer.Tekenen loop
+  }
+
+  private void AlleGeluidenDoen() {
+    List<DoelClass> omgevingsGeluiden = _doelen.Where(e =>
+        e.ClassNaam == "target_speaker" &&
+        string.IsNullOrEmpty(e.DoelNaam) && // Heeft geen targetname, dus wordt niet aangestuurd door iets anders
+        e.GedragVlaggen == 1                 // Moet direct starten en loopen
+    ).ToList();
+
+    foreach(DoelClass geluidEntiteit in omgevingsGeluiden) {
+
+      if(!geluidEntiteit.WasAlGeactiveerd) {
+        geluidEntiteit.WasAlGeactiveerd = true;
+        string hetGeluid = $"{DiverseHelpFuncties.basispadQuake2}/sound/{geluidEntiteit.GeluidPad}";
+        geluidHelper.HaalBuffer(hetGeluid);
+        Console.WriteLine($"Omgevingsgeluid starten: {hetGeluid}");
+        geluidHelper.Speel(hetGeluid, geluidEntiteit);
+      } else {
+        Console.WriteLine($"Omgevingsgeluid al actief: {geluidEntiteit.GeluidPad}");
+      }
+    } // eind foreach
+
+    var deb = 1;
   }
 
   protected override void OnUpdateFrame(FrameEventArgs e) {
@@ -135,7 +156,6 @@ public class Venster : GameWindow {
     DiverseHelpFuncties.BerekenBeweging((float)e.Time);
     if(DiverseHelpFuncties.beweging != Vector3.Zero) {
       Vector3 gewenstePositie = _camera.Positie + DiverseHelpFuncties.beweging;
-
       if(noclip) {
         _camera.Positie = gewenstePositie; // Beweeg dwars door muren
       } else {
@@ -143,8 +163,8 @@ public class Venster : GameWindow {
         _camera.Positie = _botsing.ValideerVerplaatsing(_camera.Positie, gewenstePositie);
       }
       // 4. Check triggers
-      TriggerZone t = new(); // TODO: gebruik deze variabele om te weten in welke trigger we zitten
-      _botsing.ControleerBotsing(_camera.Positie, t);
+      Trigger triggerVoorBotsing = new(); // TODO: gebruik deze variabele om te weten in welke trigger we zitten
+      _botsing.ControleerBotsing(_camera.Positie, triggerVoorBotsing);
 
       //Console.WriteLine(_camera.Positie);
 
@@ -159,34 +179,55 @@ public class Venster : GameWindow {
 
       //==========================================================
       // In je Update loop
-      foreach(var trigger in _triggers) {
+      foreach(Trigger trigger in _triggers) {
         bool spelerInBox = trigger.IsPuntInTrigger(_camera.Positie);
 
+        float afstand = Vector3.Distance(_camera.Positie, trigger.Positie);
+        if(afstand < 100 && !trigger.WasAlGeactiveerd) { // Als je heel dichtbij het gele blokje bent
+          string tekst = $"Dichtbij speaker! Afstand: {afstand}. Zou nu moeten spelen: ";
+          tekst = $"{tekst}{trigger.GeluidPad} _camera.Positie: ";
+          tekst = $"{tekst} {_camera.Positie.X},{_camera.Positie.Y},{_camera.Positie.Z} trigger.Positie: ";
+          Console.WriteLine($"{tekst} {trigger.Positie.X},{trigger.Positie.Y},{trigger.Positie.Z}");
+          var deb1 = 1;
+        }
+
         if(spelerInBox) {
-          trigger.DebugColor = new Vector4(1, 0, 0, 0.4f); // Rood
+          //trigger.DebugColor = new Vector4(1, 0, 0, 0.4f); // Rood
 
           if(!trigger.WasAlGeactiveerd) {
             trigger.WasAlGeactiveerd = true;
+
             ActiveerTarget(trigger);
           }
         } else {
-          trigger.DebugColor = new Vector4(0, 1, 0, 0.4f); // Groen
+          //trigger.DebugColor = new Vector4(0, 1, 0, 0.4f); // Groen
+          trigger.WasAlGeactiveerd = false; // Reset als je de zone verlaat
           // Optioneel: reset WasAlGeactiveerd als het een 'trigger_multiple' is
         }
       }
     }
   }
 
-  private void ActiveerTarget(TriggerZone target) {
-    Console.Write($"In ActiveerTarget: {target.Message} {target.TargetName} ");
-    LuidSpreker luidSpreker = _lader.luidsprekers.Find(s => s.TargetName == target.TargetName);
-    if(luidSpreker != null) {
-      string hetGeluid = $"{DiverseHelpFuncties.basispadQuake2}/sound/{luidSpreker.NoisePath}";
-      DiverseHelpFuncties.geluidHelper.HaalBuffer(hetGeluid);
+  private void ActiveerTarget(Trigger triggerTarget) {
+
+    Console.Write($"In ActiveerTarget: {triggerTarget.Boodschap} {triggerTarget.Doel} ");
+
+    DoelClass doel = _lader.doelen.Find(s => s.DoelNaam == triggerTarget.Doel);
+
+    //if(Vector3.Distance(_camera.Positie, doel.Positie) < 200) {
+    //  Console.WriteLine($"In bereik van speaker: {doel.GeluidPad}");
+    //}
+
+    if(doel != null
+    && doel.ClassNaam == "target_speaker"
+    && doel.DoelNaam != null
+    && triggerTarget.Doel != null) {
+      string hetGeluid = $"{DiverseHelpFuncties.basispadQuake2}/sound/{doel.GeluidPad}";
+      geluidHelper.HaalBuffer(hetGeluid);
       Console.WriteLine($" - Geluid gevonden: {hetGeluid}");
-      luidSpreker.Speel(hetGeluid);
+      geluidHelper.Speel(hetGeluid, doel);
     } else {
-      Console.WriteLine($" - Geen geluid gevonden. {target.TargetName}");
+      Console.WriteLine($" - Geen geluid gevonden. {triggerTarget.Doel} / {triggerTarget.DoelNaam}");
     }
   }
 
@@ -202,26 +243,28 @@ public class Venster : GameWindow {
     _renderer.HetTekenen(_textures, _shader);
 
     //// Teken hier de trigger boxes
-    foreach(TriggerZone trigger in _triggers) {
-      TekenTriggerBox(trigger);
-    }
+    //foreach(Trigger trigger in _triggers) {
+    //  TekenTriggerBox(trigger);
+    //}
     // Klaar met tekenen van triggers
 
     GL.DepthMask(false);
     _skyboxRenderer.Render(_camera.GetViewMatrix(), _camera.GetProjectionMatrix());
     GL.DepthMask(true);
 
+    _markerRenderer.TekenMarkers(_shader, _lader.doelen);
+
     SwapBuffers();
   }
-  private void TekenTriggerBox(TriggerZone triggerZone) {
+  private void TekenTriggerBox(Trigger triggerZone) {
     // Zet debug mode aan in de shader, zodat groen of rood getekend wordt
-    _shader.SetInt("debugMode", 1); 
+    _shader.SetInt("debugMode", 1);
     GL.Enable(EnableCap.Blend);
     GL.DepthMask(false); // Triggers blokkeren de muren erachter niet
 
     // Bereken grootte en positie
-    Vector3 grootte = triggerZone.Maxs - triggerZone.Mins;
-    Vector3 midden = (triggerZone.Mins + triggerZone.Maxs) / 2.0f;
+    Vector3 grootte = triggerZone.MaximumCoordinaat - triggerZone.MinimumCoordinaat;
+    Vector3 midden = (triggerZone.MinimumCoordinaat + triggerZone.MaximumCoordinaat) / 2.0f;
 
     // Maak een model matrix die de standaard kubus op de juiste plek zet
     Matrix4 model = Matrix4.CreateScale(grootte) * Matrix4.CreateTranslation(midden);

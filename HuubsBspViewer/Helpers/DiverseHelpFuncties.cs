@@ -1,4 +1,5 @@
-﻿using OpenTK.Graphics.OpenGL4;
+﻿using OpenTK.Audio.OpenAL;
+using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using System.Reflection.Metadata.Ecma335;
@@ -33,8 +34,6 @@ public static class DiverseHelpFuncties {
   public static bool sIngedrukt;
   public static bool dIngedrukt;
   public static bool aIngedrukt;
-
-  public static GeluidHelper geluidHelper = new();
 
   internal static void ConsoleLog(string tekst, BspLader lader) {
     Console.WriteLine("[HuubsBspViewer] " + tekst);
@@ -100,7 +99,7 @@ public static class DiverseHelpFuncties {
     luchtNaam = "space1"; // Standaard lucht
 
     foreach(Entiteit entiteit in entiteiten) {
-      if (entiteit.Attributen.ContainsKey("sky")) {
+      if(entiteit.Attributen.ContainsKey("sky")) {
         luchtNaam = entiteit.Attributen["sky"];
       }
 
@@ -112,20 +111,20 @@ public static class DiverseHelpFuncties {
   }
 
   private static void BepaalStartPositie(Entiteit entiteit) {
-      if(entiteit.Attributen["origin"] != null) {
-        // We splitsen op de quotes en pakken de laatste waarde
-        // Haal de getallen uit de regel: "origin" "128 -256 16"
-        string waarden = entiteit.Attributen["origin"];
-        string[] assen = waarden.Split(' ');
+    if(entiteit.Attributen["origin"] != null) {
+      // We splitsen op de quotes en pakken de laatste waarde
+      // Haal de getallen uit de regel: "origin" "128 -256 16"
+      string waarden = entiteit.Attributen["origin"];
+      string[] assen = waarden.Split(' ');
 
-        if(assen.Length == 3) {
-          float x = float.Parse(assen[0]);
-          float y = float.Parse(assen[1]);
-          float z = float.Parse(assen[2]);
-          // Quake -> OpenGL: (X, Z, -Y) doet de camera al goed
-          //              return new Vector3(x, z, -y); // OKE DIT IS GOED
-          startPos = new Vector3(x, y, z);
-          //startPos = new Vector3(832, 2292, -224); //TODO deze regel weghalen na testen
+      if(assen.Length == 3) {
+        float x = float.Parse(assen[0]);
+        float y = float.Parse(assen[1]);
+        float z = float.Parse(assen[2]);
+        // Quake -> OpenGL: (X, Z, -Y) doet de camera al goed
+        //              return new Vector3(x, z, -y); // OKE DIT IS GOED
+        startPos = new Vector3(x, y, z);
+        //startPos = new Vector3(832, 2292, -224); //TODO deze regel weghalen na testen
       } // assen
     }
   }

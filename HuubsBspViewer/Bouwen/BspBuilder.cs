@@ -50,6 +50,10 @@ public class BspBuilder {
     lijst.Add(punt.Y);
     lijst.Add(punt.Z);
 
+    //lijst.Add(punt.X);
+    //lijst.Add(punt.Z);
+    //lijst.Add(-punt.Y);
+
     // UV-berekening (met de 1.0 - v fix voor ondersteboven textures)
     float u = (Vector3.Dot(punt, tex.U_As) + tex.U_Offset) / 64.0f;
     float v = 1.0f - ((Vector3.Dot(punt, tex.V_As) + tex.V_Offset) / 64.0f);

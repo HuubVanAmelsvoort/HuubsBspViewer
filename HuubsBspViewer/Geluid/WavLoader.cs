@@ -1,12 +1,13 @@
 ﻿using OpenTK.Audio.OpenAL;
 using System.Runtime.InteropServices;
 public static class WavLoader {
-  public static int LoadWav(string filename) {
-    if(!File.Exists(filename)) {
+  public static int LoadWav(string bestandsNaam) {
+    if(!File.Exists(bestandsNaam)) {
       return -1;
     }
+    Console.WriteLine($"In LoadWav bestandsNaam: {bestandsNaam}");
 
-    using(BinaryReader reader = new BinaryReader(File.OpenRead(filename))) {
+    using(BinaryReader reader = new BinaryReader(File.OpenRead(bestandsNaam))) {
       // RIFF header
       string signature = new string(reader.ReadChars(4));
       if(signature != "RIFF") throw new NotSupportedException("Geen RIFF bestand");
@@ -44,7 +45,7 @@ public static class WavLoader {
         handle.Free();
       }
 
-      Console.WriteLine($"Laden: {filename} - Kanalen: {channels}, Bits: {bitsPerSample}, Rate: {sampleRate}");
+      Console.WriteLine($"Laden: {bestandsNaam} - Kanalen: {channels}, Bits: {bitsPerSample}, Rate: {sampleRate}");
 
       return buffer;
     }
