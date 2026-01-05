@@ -12,7 +12,7 @@ public static class DiverseHelpFuncties {
 
   private static Vector2 _vorigeMuisPositie;
 
-  public static BspBotsing _botsing; // Komt uit BspVenster
+  public static Botsing _botsing; // Komt uit BspVenster
   //========================= Shader code ==============================
   public static Camera _camera; // Komt uit BspVenster
   public static Vector3 startPos = new Vector3(); // -1768 1536 128 uit entiteiten of 128 -320 32
@@ -35,7 +35,7 @@ public static class DiverseHelpFuncties {
   public static bool dIngedrukt;
   public static bool aIngedrukt;
 
-  internal static void ConsoleLog(string tekst, BspLader lader) {
+  internal static void ConsoleLog(string tekst, Lader lader) {
     Console.WriteLine("[HuubsBspViewer] " + tekst);
     Console.WriteLine("[HuubsBspViewer] Aantal vlakken in map: " + lader.Vlakken.Count);
     Console.WriteLine("[HuubsBspViewer] Aantal hoekpunten in map: " + lader.Hoekpunten.Count);
@@ -55,7 +55,7 @@ public static class DiverseHelpFuncties {
     string msg = Marshal.PtrToStringAnsi(message, length);
     Console.WriteLine($"[GL DEBUG] {msg}");
   }
-  public static List<Vector3> HaalVlakPuntenOp(BspVlak vlak, BspLader lader) {
+  public static List<Vector3> HaalVlakPuntenOp(BspVlak vlak, Lader lader) {
     List<Vector3> vlijst = new List<Vector3>();
     for(int i = 0; i < vlak.AantalEdges; i++) {
       int surfEdgeIndex = lader.SurfEdges[vlak.EersteEdgeIndex + i];

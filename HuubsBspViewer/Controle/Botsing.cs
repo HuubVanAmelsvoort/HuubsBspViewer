@@ -1,8 +1,8 @@
 ﻿using OpenTK.Mathematics;
 
-public class BspBotsing {
-  private readonly BspLader _data;
-  public BspBotsing(BspLader geladenData) {
+public class Botsing {
+  private readonly Lader _data;
+  public Botsing(Lader geladenData) {
     _data = geladenData; // We gebruiken de reeds geladen data
   }
   public Vector3 ValideerVerplaatsing(Vector3 huidigePos, Vector3 doelPos) {
@@ -44,7 +44,7 @@ public class BspBotsing {
   /**
    * afkomstig van CheckCollision
    */
-  public bool ControleerBotsing(Vector3 spelerPos, Trigger zone) {
+  public bool ControleerBotsing(Vector3 spelerPos, EntiteitAlgemeen zone) {
     return spelerPos.X >= zone.MinimumCoordinaat.X && spelerPos.X <= zone.MaximumCoordinaat.X &&
            spelerPos.Y >= zone.MinimumCoordinaat.Y && spelerPos.Y <= zone.MaximumCoordinaat.Y &&
            spelerPos.Z >= zone.MinimumCoordinaat.Z && spelerPos.Z <= zone.MaximumCoordinaat.Z;

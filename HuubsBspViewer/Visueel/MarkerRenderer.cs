@@ -39,7 +39,7 @@ public class MarkerRenderer {
     GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 3 * sizeof(float), 0);
     GL.EnableVertexAttribArray(0);
   }
-  public void TekenMarkers(AlgemeneShader shader, List<DoelClass> doelen) {
+  public void TekenMarkers(AlgemeneShader shader, List<EntiteitAlgemeen> doelen) {
     shader.Gebruiken();
     //int isMarkerLoc = GL.GetUniformLocation(shader.Handle, "isMarker");
 
@@ -50,7 +50,7 @@ public class MarkerRenderer {
 
     GL.BindVertexArray(_vao);
 
-    foreach(DoelClass doel in doelen) {
+    foreach(EntiteitAlgemeen doel in doelen) {
       Vector3 nieuwePositie = ParseQuakeCoordinaten(doel.Positie.ToString());
 
       //if(doel.ClassNaam == "target_speaker") {

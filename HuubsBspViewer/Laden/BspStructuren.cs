@@ -77,70 +77,31 @@ public class Entiteit {
       = new Dictionary<string, string>();
 }
 public class EntiteitAlgemeen {
+  public string ClassNaam;
+  public string Doel;
   public string DoelNaam;
   public string GeluidPad;
   public bool IsLopen;
   public string Boodschap;
-  public string Doel;
   public Vector3 MinimumCoordinaat;
   public Vector3 MaximumCoordinaat;
-  public string GedragVlaggen;
+  public string GedragVlaggenTekst;
+  public int GedragVlaggen;
   public float Vertraging;
   public string Lucht;
   public string Geluiden;
   public string VolgendeMap;
   public string DeHoek;
   public string Verzwakking;
-  public string ClassNaam;
   public Vector3 Positie;
   public string Wachten;
-}
+  internal bool WasAlGeactiveerd;
+  internal bool IsTriggerBox;
+  internal bool IsActief;
 
-public class Trigger {
-  public string ClassNaam;
-  public Vector3 Positie;
-  public float Vertraging;
-  public string Doel;
-  public string DoelNaam;
-  public bool WasAlGeactiveerd;
-  public string Classnaam;
-  public string GeluidPad;
-  public bool IsLopen;
-  public string Lucht;
-  public string Geluiden;
-  public string VolgendeMap;
-  public string DeHoek;
-  public string Wachten;
-  public string Verzwakking;
-  public Vector3 MinimumCoordinaat;
-  public Vector3 MaximumCoordinaat;
-  public string GedragVlaggen;
-  public string Boodschap;
-
-  // Controleer of een punt (bijv. de speler) in de trigger staat
   public bool IsPuntInTrigger(Vector3 punt) {
     return (punt.X >= MinimumCoordinaat.X && punt.X <= MaximumCoordinaat.X) &&
            (punt.Y >= MinimumCoordinaat.Y && punt.Y <= MaximumCoordinaat.Y) &&
            (punt.Z >= MinimumCoordinaat.Z && punt.Z <= MaximumCoordinaat.Z);
   }
-}
-public class DoelClass {
-  public string ClassNaam;
-  public string Doel;
-  public string DoelNaam;
-  public Vector3 Positie;
-  public string Boodschap;
-  public string GeluidPad; // bijv. "world/amb1.wav"
-  public bool IsLopen;
-  public string Lucht;
-  public string Geluiden;
-  public int GedragVlaggen;
-  public string VolgendeMap;
-  public string DeHoek;
-  public string Wachten;
-  public string Verzwakking;
-  public Vector3 MinimumCoordinaat;
-  public Vector3 MaximumCoordinaat;
-  public float Vertraging;
-  public bool WasAlGeactiveerd;
 }

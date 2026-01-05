@@ -1,11 +1,11 @@
 ﻿using OpenTK.Audio.OpenAL;
 using System.Runtime.InteropServices;
-public static class WavLoader {
-  public static int LoadWav(string bestandsNaam) {
+public static class WavLader {
+  public static int LaadWav(string bestandsNaam) {
     if(!File.Exists(bestandsNaam)) {
       return -1;
     }
-    Console.WriteLine($"In LoadWav bestandsNaam: {bestandsNaam}");
+    Console.WriteLine($"In LaadWav bestandsNaam: {bestandsNaam}");
 
     using(BinaryReader reader = new BinaryReader(File.OpenRead(bestandsNaam))) {
       // RIFF header

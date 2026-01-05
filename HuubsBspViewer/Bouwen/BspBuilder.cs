@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Reflection.Emit;
 public class BspBuilder {
 
-  public List<TextureGroep> GenereerDriehoeken(BspLader lader) {
+  public List<TextureGroep> GenereerDriehoeken(Lader lader) {
     // We gebruiken een Dictionary om vertices per textuur te groeperen
     Dictionary<string, TextureGroep> groepen = new Dictionary<string, TextureGroep>();
 
@@ -61,7 +61,7 @@ public class BspBuilder {
     lijst.Add(u);
     lijst.Add(v);
   }
-  private void DeTexturing(BspLader lader, BspVlak vlak, Vector3 Punt) {
+  private void DeTexturing(Lader lader, BspVlak vlak, Vector3 Punt) {
     // Voor elk hoekpunt (Punt) in een Vlak:
     var tex = lader.TextureInfos[vlak.TextureInfoIndex];
 

@@ -30,6 +30,10 @@ public class Camera {
     get => _rechts;
     set => _rechts = value;
   }
+  public Vector3 Omhoog {
+    get => _omhoog;
+    set => _omhoog = value;
+  }
   public float RechtsLinks {
     get => _rechtsLinks;
     set => _rechtsLinks = value;

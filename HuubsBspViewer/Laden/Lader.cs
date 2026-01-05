@@ -1,8 +1,7 @@
 ﻿using OpenTK.Mathematics;
-using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
-public class BspLader {
+public class Lader {
   public enum DatablokTiepe {
     Entities = 0,
     Planes = 1,
@@ -35,11 +34,8 @@ public class BspLader {
   public List<BspBlad> Bladeren = new List<BspBlad>();
   public List<BspTexInfo> TextureInfos = new List<BspTexInfo>();
   public List<string> TextureNamen = new List<string>();
-  public List<Trigger> triggers = new List<Trigger>();
-  public List<Trigger> logischetriggers = new List<Trigger>();
   public List<Entiteit> entiteiten = new List<Entiteit>();
-  //public List<LuidSpreker> luidsprekers = new List<LuidSpreker>();
-  public List<DoelClass> doelen = new List<DoelClass>();
+  public List<EntiteitAlgemeen> EntiteitenAlgemeen = new List<EntiteitAlgemeen>();
   public List<Model> Models = new List<Model>();
 
   //================= Voor Entiteiten ==========================
@@ -237,51 +233,6 @@ public class BspLader {
     string EntiteitenTekst = Encoding.ASCII.GetString(bytes);
     entiteiten = Parse(EntiteitenTekst);
   }
-  //public static List<Entiteit> Parse(string text) {
-  //  var entities = new List<Entiteit>();
-  //  Entiteit current = null;
-  //  int lastEntityId = -1;
-
-  //  using var reader = new StringReader(text);
-  //  string line;
-
-  //  while((line = reader.ReadLine()) != null) {
-  //    line = line.Trim();
-
-  //    // Optional entity comment
-  //    if(line.StartsWith("// Entity")) {
-  //      var parts = line.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-  //      if(parts.Length >= 3 && int.TryParse(parts[2], out int id))
-  //        lastEntityId = id;
-
-  //      continue;
-  //    }
-
-  //    if(line == "{") {
-  //      current = new Entiteit { Id = lastEntityId >= 0 ? lastEntityId : null };
-  //      lastEntityId = -1;
-  //      continue;
-  //    }
-
-  //    if(line == "}") {
-  //      if(current != null)
-  //        entities.Add(current);
-
-  //      current = null;
-  //      continue;
-  //    }
-
-  //    if(current != null && line.StartsWith("\"")) {
-  //      int split = line.IndexOf("\" ", StringComparison.Ordinal);
-  //      if(split > 0) {
-  //        string key = line.Substring(1, split - 1);
-  //        string value = line.Substring(split + 3, line.Length - split - 4);
-  //        current.Attributen[key] = value;
-  //      }
-  //    }
-  //  }
-  //  return entities;
-  //}
   public static List<Entiteit> Parse(string text) {
     var entities = new List<Entiteit>();
     Entiteit current = null;
@@ -336,14 +287,9 @@ public class BspLader {
   }
 
   public void VerwerkEntiteiten() {
-    triggers = new List<Trigger>();
-    //luidsprekers = new List<LuidSpreker>();
-    doelen = new List<DoelClass>();
-    logischetriggers = new List<Trigger>();
-
+    EntiteitenAlgemeen = new List<EntiteitAlgemeen>();
     foreach(Entiteit entiteit in entiteiten) {
       EntiteitAlgemeen entiteitAlgemeen = new();
-
       string classNaam = entiteit.Attributen.ContainsKey("classname")
         ? entiteit.Attributen["classname"] : "";
       entiteitAlgemeen.ClassNaam = classNaam;
@@ -360,10 +306,6 @@ public class BspLader {
       if(entiteit.Attributen.ContainsKey("targetname")) {
         entiteitAlgemeen.DoelNaam = entiteit.Attributen["targetname"];
       }
-      if(entiteit.Attributen.ContainsKey("origin")) {
-        string[] tekst = entiteit.Attributen["origin"].Split();
-        entiteitAlgemeen.Positie = new Vector3(float.Parse(tekst[0]), float.Parse(tekst[1]), float.Parse(tekst[2]));
-      }
       if(entiteit.Attributen.ContainsKey("noise")) {
         entiteitAlgemeen.GeluidPad = entiteit.Attributen["noise"];
       }
@@ -373,8 +315,9 @@ public class BspLader {
       if(entiteit.Attributen.ContainsKey("message")) {
         entiteitAlgemeen.Boodschap = entiteit.Attributen["message"];
       }
-      if(entiteit.Attributen.ContainsKey("spawnflags")) {
-        entiteitAlgemeen.GedragVlaggen = entiteit.Attributen["spawnflags"];
+      if(entiteit.Attributen.ContainsKey("origin")) {
+        string[] tekst = entiteit.Attributen["origin"].Split();
+        entiteitAlgemeen.Positie = new Vector3(float.Parse(tekst[0]), float.Parse(tekst[1]), float.Parse(tekst[2]));
       }
       if(entiteit.Attributen.ContainsKey("nextmap")) {
         entiteitAlgemeen.VolgendeMap = entiteit.Attributen["nextmap"];
@@ -410,7 +353,24 @@ public class BspLader {
           entiteitAlgemeen.Vertraging = float.Parse(entiteit.Attributen["delay"]);
         }
       }
-
+      //===================================================================================================  
+      entiteitAlgemeen.GedragVlaggen = 0;
+      if(entiteit.Attributen.ContainsKey("spawnflags")) {
+        entiteitAlgemeen.GedragVlaggenTekst = entiteit.Attributen["spawnflags"];
+        bool gelukt = int.TryParse(entiteitAlgemeen.GedragVlaggenTekst, out entiteitAlgemeen.GedragVlaggen);
+        if(!gelukt) {
+          Console.WriteLine($"Kan spawnflags niet parsen: {entiteitAlgemeen.GedragVlaggenTekst}");
+        }
+      }
+      if(entiteitAlgemeen.ClassNaam.StartsWith("trigger_")) {
+        entiteitAlgemeen.IsTriggerBox = true;
+        // Hier voeg je de logica toe om de 'mins' en 'maxs' van de trigger te bepalen
+      }
+      if(entiteitAlgemeen.ClassNaam == "target_speaker" 
+      && string.IsNullOrEmpty(entiteitAlgemeen.DoelNaam) && (entiteitAlgemeen.GedragVlaggen & 1) != 0) {
+        entiteitAlgemeen.IsLopen = true;
+        entiteitAlgemeen.IsActief = true; // Deze mag direct geluid maken
+      }
       switch(classNaam) {
         case "ammo_bullets":
         case "ammo_grenades":
@@ -450,8 +410,6 @@ public class BspLader {
         case "monster_soldier_ss":
         case "path_corner":
         case "point_combat":
-          VerwerkDiversen(entiteitAlgemeen);
-          break;
         //==========================================================================
         case "target_changelevel":
         case "target_crosslevel_target":
@@ -459,18 +417,12 @@ public class BspLader {
         case "target_goal":
         case "target_help":
         case "target_secret":
-          VerwerkDoelen(entiteitAlgemeen);
-          break;
         case "target_speaker":
-          VerwerkDoelen(entiteitAlgemeen);
-          break;
         //==========================================================================
         case "trigger_always":
         case "trigger_multiple":
         case "trigger_once":
         case "trigger_relay":
-          VerwerkTrigger(entiteitAlgemeen);
-          break;
         //==========================================================================
         case "weapon_chaingun":
         case "weapon_grenadelauncher":
@@ -480,68 +432,12 @@ public class BspLader {
         case "weapon_shotgun":
         case "weapon_supershotgun":
         case "worldspawn":
-          VerwerkDiversen(entiteitAlgemeen);
+          EntiteitenAlgemeen.Add(entiteitAlgemeen);
           break;
         default:
-          Console.WriteLine($"Onbekende entiteit in trigger verwerking: {classNaam}");
+          Console.WriteLine($"Onbekende entiteit: {classNaam}");
           break;
       }
     } // eind foreach
-  }
-
-  private void VerwerkDiversen(EntiteitAlgemeen entiteitAlgemeen) {
-    // Dit is een logische trigger (zoals trigger_relay)
-    // Deze hoef je niet te laden voor collision detectie, 
-    // maar wel voor de logica (als 'target' van iets anders).
-    VerwerkTrigger(entiteitAlgemeen);
-    //Console.WriteLine($"VerwerkDiversen: {entiteit.Attributen["classname"]}");
-  }
-
-  private void VerwerkDoelen(EntiteitAlgemeen entiteitAlgemeen) {
-    DoelClass doel = new DoelClass();
-
-    doel.ClassNaam = entiteitAlgemeen.ClassNaam;
-    doel.Doel = entiteitAlgemeen.Doel;
-    doel.DoelNaam = entiteitAlgemeen.DoelNaam;
-    doel.Positie = entiteitAlgemeen.Positie;
-    doel.GeluidPad = entiteitAlgemeen.GeluidPad;
-    doel.IsLopen = entiteitAlgemeen.IsLopen;
-    doel.Boodschap = entiteitAlgemeen.Boodschap;
-    doel.Lucht = entiteitAlgemeen.Lucht;
-    doel.Geluiden = entiteitAlgemeen.Geluiden;
-    bool gelukt = int.TryParse(entiteitAlgemeen.GedragVlaggen, out doel.GedragVlaggen);
-    doel.VolgendeMap = entiteitAlgemeen.VolgendeMap;
-    doel.DeHoek = entiteitAlgemeen.DeHoek;
-    doel.Wachten = entiteitAlgemeen.Wachten;
-    doel.Verzwakking = entiteitAlgemeen.Verzwakking;
-    doel.MinimumCoordinaat = entiteitAlgemeen.MinimumCoordinaat;
-    doel.MaximumCoordinaat = entiteitAlgemeen.MaximumCoordinaat;
-    doel.Vertraging = entiteitAlgemeen.Vertraging;
-
-    Console.WriteLine($"VerwerkDoelen default: {doel.ClassNaam} / {doel.DoelNaam} / {doel.Positie} / {doel.Boodschap}");
-    doelen.Add(doel);
-  }
-  private void VerwerkTrigger(EntiteitAlgemeen entiteitAlgemeen) {
-    Trigger trigger = new Trigger();
-
-    trigger.ClassNaam = entiteitAlgemeen.ClassNaam;
-    trigger.Doel = entiteitAlgemeen.Doel;
-    trigger.DoelNaam = entiteitAlgemeen.DoelNaam;
-    trigger.Positie = entiteitAlgemeen.Positie;
-    trigger.GeluidPad = entiteitAlgemeen.GeluidPad;
-    trigger.IsLopen = entiteitAlgemeen.IsLopen;
-    trigger.Boodschap = entiteitAlgemeen.Boodschap;
-    trigger.Lucht = entiteitAlgemeen.Lucht;
-    trigger.Geluiden = entiteitAlgemeen.Geluiden;
-    trigger.GedragVlaggen = entiteitAlgemeen.GedragVlaggen;
-    trigger.VolgendeMap = entiteitAlgemeen.VolgendeMap;
-    trigger.DeHoek = entiteitAlgemeen.DeHoek;
-    trigger.Wachten = entiteitAlgemeen.Wachten;
-    trigger.Verzwakking = entiteitAlgemeen.Verzwakking;
-    trigger.MinimumCoordinaat = entiteitAlgemeen.MinimumCoordinaat;
-    trigger.MaximumCoordinaat = entiteitAlgemeen.MaximumCoordinaat;
-    trigger.Vertraging = entiteitAlgemeen.Vertraging;
-
-    triggers.Add(trigger);
   }
 }

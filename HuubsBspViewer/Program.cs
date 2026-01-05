@@ -11,7 +11,7 @@ namespace HuubsBspViewer {
         return;
       }
 
-      BspLader lader = new BspLader();
+      Lader lader = new Lader();
 
       lader.LaadBestand(args[0]);
 
