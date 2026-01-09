@@ -64,6 +64,7 @@ public class BspTexInfo {
   public int VolgendeTexInfo;
 }
 public class Model {
+  public int Index;
   public Vector3 MinimumCoordinaat;    // De kleinste hoek van de bounding box
   public Vector3 MaximumCoordinaat;    // De grootste hoek van de bounding box
   public Vector3 Origin;  // Het middelpunt (vaak 0,0,0 voor statische triggers)
@@ -98,10 +99,12 @@ public class EntiteitAlgemeen {
   internal bool WasAlGeactiveerd;
   internal bool IsTriggerBox;
   internal bool IsActief;
-
-  public bool IsPuntInTrigger(Vector3 punt) {
-    return (punt.X >= MinimumCoordinaat.X && punt.X <= MaximumCoordinaat.X) &&
-           (punt.Y >= MinimumCoordinaat.Y && punt.Y <= MaximumCoordinaat.Y) &&
-           (punt.Z >= MinimumCoordinaat.Z && punt.Z <= MaximumCoordinaat.Z);
+  internal int ModelIndex;
+  internal int Schade; // dmg 
+  public bool IsPuntInTrigger(Vector3 punt, float straal = 15.0f) {
+    bool isHetWaar = punt.X >= (MinimumCoordinaat.X - straal) && punt.X <= (MaximumCoordinaat.X + straal) &&
+           punt.Y >= (MinimumCoordinaat.Y - straal) && punt.Y <= (MaximumCoordinaat.Y + straal) &&
+           punt.Z >= (MinimumCoordinaat.Z - straal) && punt.Z <= (MaximumCoordinaat.Z + straal);
+    return isHetWaar;
   }
 }

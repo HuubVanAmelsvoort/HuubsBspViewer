@@ -3,6 +3,7 @@ using System.Runtime.InteropServices;
 public static class WavLader {
   public static int LaadWav(string bestandsNaam) {
     if(!File.Exists(bestandsNaam)) {
+      Console.WriteLine($"In LaadWav bestandsNaam: {bestandsNaam} bestaat niet!!!!");
       return -1;
     }
     Console.WriteLine($"In LaadWav bestandsNaam: {bestandsNaam}");
@@ -17,6 +18,9 @@ public static class WavLader {
       string chunkID = new string(reader.ReadChars(4)); // fmt 
       reader.ReadInt32(); // Chunk size
       short audioFormat = reader.ReadInt16(); // 1 = PCM
+      if(audioFormat != 1) { // 1 = PCM, alles anders is gecomprimeerd
+        Console.WriteLine($"FOUT: {bestandsNaam} is geen PCM maar formaat {audioFormat}");
+      }
       short channels = reader.ReadInt16();
       int sampleRate = reader.ReadInt32();
       reader.ReadInt32(); // Byte rate

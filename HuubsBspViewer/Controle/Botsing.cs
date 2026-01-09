@@ -41,12 +41,4 @@ public class Botsing {
       return IsPuntInSolideRuimte(punt, knoop.Kinderen[1]);
     }
   }
-  /**
-   * afkomstig van CheckCollision
-   */
-  public bool ControleerBotsing(Vector3 spelerPos, EntiteitAlgemeen zone) {
-    return spelerPos.X >= zone.MinimumCoordinaat.X && spelerPos.X <= zone.MaximumCoordinaat.X &&
-           spelerPos.Y >= zone.MinimumCoordinaat.Y && spelerPos.Y <= zone.MaximumCoordinaat.Y &&
-           spelerPos.Z >= zone.MinimumCoordinaat.Z && spelerPos.Z <= zone.MaximumCoordinaat.Z;
-  }
 }

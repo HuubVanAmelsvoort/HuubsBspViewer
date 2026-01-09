@@ -36,7 +36,7 @@ public class Lader {
   public List<string> TextureNamen = new List<string>();
   public List<Entiteit> entiteiten = new List<Entiteit>();
   public List<EntiteitAlgemeen> EntiteitenAlgemeen = new List<EntiteitAlgemeen>();
-  public List<Model> Models = new List<Model>();
+  public List<Model> Modellen = new List<Model>();
 
   //================= Voor Entiteiten ==========================
   private static readonly Regex entityHeaderRegex =
@@ -215,16 +215,17 @@ public class Lader {
     int aantalModellen = modelLump.Lengte / 48; // Elk model is 48 bytes
 
     for(int i = 0; i < aantalModellen; i++) {
-      Model m = new Model();
+      Model model = new Model();
       // Quake gebruikt X, Y, Z (float is 4 bytes)
-      m.MinimumCoordinaat = new Vector3(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
-      m.MaximumCoordinaat = new Vector3(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
-      m.Origin = new Vector3(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
-      m.HeadNode = reader.ReadInt32();
-      m.FirstFace = reader.ReadInt32();
-      m.NumFaces = reader.ReadInt32();
+      model.Index = i;
+      model.MinimumCoordinaat = new Vector3(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
+      model.MaximumCoordinaat = new Vector3(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
+      model.Origin = new Vector3(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
+      model.HeadNode = reader.ReadInt32();
+      model.FirstFace = reader.ReadInt32();
+      model.NumFaces = reader.ReadInt32();
 
-      Models.Add(m);
+      Modellen.Add(model);
     }
   }
   private void LeesEntiteiten(BinaryReader reader, Datablok lump) {
@@ -287,11 +288,14 @@ public class Lader {
   }
 
   public void VerwerkEntiteiten() {
-    EntiteitenAlgemeen = new List<EntiteitAlgemeen>();
     foreach(Entiteit entiteit in entiteiten) {
       EntiteitAlgemeen entiteitAlgemeen = new();
-      string classNaam = entiteit.Attributen.ContainsKey("classname")
-        ? entiteit.Attributen["classname"] : "";
+      string classNaam = entiteit.Attributen.ContainsKey("classname") ? entiteit.Attributen["classname"] : "";
+      
+      if (classNaam.Contains("func_button")) {
+        var deb=1;
+      }
+      
       entiteitAlgemeen.ClassNaam = classNaam;
 
       if(entiteit.Attributen.ContainsKey("sky")) {
@@ -332,17 +336,20 @@ public class Lader {
         entiteitAlgemeen.Verzwakking = entiteit.Attributen["attenuation"];
       }
 
-      entiteitAlgemeen.MinimumCoordinaat = new();
-      entiteitAlgemeen.MaximumCoordinaat = new();
+      //entiteitAlgemeen.MinimumCoordinaat = new();
+      //entiteitAlgemeen.MaximumCoordinaat = new();
 
       if(entiteit.Attributen.ContainsKey("model") && entiteit.Attributen["model"].StartsWith("*")) {
         string modelSleutel = entiteit.Attributen["model"]; // bijv. "*1"
         int modelIndex = int.Parse(modelSleutel.Substring(1));
-        if(modelIndex < Models.Count) {
+        entiteitAlgemeen.ModelIndex = modelIndex;
+        if(modelIndex < Modellen.Count) {
           // Haal de mins/maxs uit de Models Lump van de BSP
-          Model model = Models[modelIndex];
+          Model model = Modellen[modelIndex];
           entiteitAlgemeen.MinimumCoordinaat = model.MinimumCoordinaat;
           entiteitAlgemeen.MaximumCoordinaat = model.MaximumCoordinaat;
+        } else {
+          Console.WriteLine($"Model index {modelIndex} ligt buiten het bereik van beschikbare modellen.");
         }
       }
 
@@ -362,15 +369,20 @@ public class Lader {
           Console.WriteLine($"Kan spawnflags niet parsen: {entiteitAlgemeen.GedragVlaggenTekst}");
         }
       }
+      if(entiteit.Attributen.ContainsKey("dmg")) {
+         bool gelukt2 = int.TryParse(entiteit.Attributen["dmg"], out entiteitAlgemeen.Schade);
+      }
       if(entiteitAlgemeen.ClassNaam.StartsWith("trigger_")) {
         entiteitAlgemeen.IsTriggerBox = true;
         // Hier voeg je de logica toe om de 'mins' en 'maxs' van de trigger te bepalen
       }
-      if(entiteitAlgemeen.ClassNaam == "target_speaker" 
+      if(entiteitAlgemeen.ClassNaam == "target_speaker"
       && string.IsNullOrEmpty(entiteitAlgemeen.DoelNaam) && (entiteitAlgemeen.GedragVlaggen & 1) != 0) {
         entiteitAlgemeen.IsLopen = true;
         entiteitAlgemeen.IsActief = true; // Deze mag direct geluid maken
       }
+
+      //===================================================================================================
       switch(classNaam) {
         case "ammo_bullets":
         case "ammo_grenades":
@@ -410,6 +422,8 @@ public class Lader {
         case "monster_soldier_ss":
         case "path_corner":
         case "point_combat":
+          EntiteitenAlgemeen.Add(entiteitAlgemeen);
+          break;
         //==========================================================================
         case "target_changelevel":
         case "target_crosslevel_target":
@@ -418,11 +432,15 @@ public class Lader {
         case "target_help":
         case "target_secret":
         case "target_speaker":
+          EntiteitenAlgemeen.Add(entiteitAlgemeen);
+          break;
         //==========================================================================
         case "trigger_always":
         case "trigger_multiple":
         case "trigger_once":
         case "trigger_relay":
+          EntiteitenAlgemeen.Add(entiteitAlgemeen);
+          break;
         //==========================================================================
         case "weapon_chaingun":
         case "weapon_grenadelauncher":

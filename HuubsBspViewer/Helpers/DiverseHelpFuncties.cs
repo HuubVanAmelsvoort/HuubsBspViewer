@@ -12,7 +12,7 @@ public static class DiverseHelpFuncties {
 
   private static Vector2 _vorigeMuisPositie;
 
-  public static Botsing _botsing; // Komt uit BspVenster
+  //public static Botsing _botsing; // Komt uit BspVenster
   //========================= Shader code ==============================
   public static Camera _camera; // Komt uit BspVenster
   public static Vector3 startPos = new Vector3(); // -1768 1536 128 uit entiteiten of 128 -320 32
@@ -49,7 +49,8 @@ public static class DiverseHelpFuncties {
 
   }
   // De callback methode:
-  public static void HuubDebugCallback(DebugSource source, DebugType type, int id, DebugSeverity severity, int length, IntPtr message, IntPtr userParam) {
+  public static void HuubDebugCallback(DebugSource source, DebugType type, int id
+  , DebugSeverity severity, int length, IntPtr message, IntPtr userParam) {
     if(severity == DebugSeverity.DebugSeverityNotification) return; // negeer notificaties
 
     string msg = Marshal.PtrToStringAnsi(message, length);
