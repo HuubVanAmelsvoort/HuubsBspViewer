@@ -1,5 +1,4 @@
 ﻿using OpenTK.Mathematics;
-using System.Drawing;
 
 public class Camera {
   // ===== Instellingen =====
@@ -64,7 +63,7 @@ public class Camera {
     _vooruit.X = MathF.Cos(_omhoogOmlaag) * MathF.Cos(_rechtsLinks);
     _vooruit.Y = MathF.Cos(_omhoogOmlaag) * MathF.Sin(_rechtsLinks);
     _vooruit.Z = MathF.Sin(_omhoogOmlaag);
-    
+
     _vooruit = Vector3.Normalize(_vooruit);
 
     // Right & Up
@@ -94,19 +93,15 @@ public class Camera {
   }
 
   public Matrix4 GetProjectionMatrix() {
-    //var x = Matrix4.CreatePerspectiveFieldOfView(
-    //    MathHelper.DegreesToRadians( GezichtsVeldFieldOfView),
-    //    AspectRatio,
-    //    0.1f,
-    //    20000.0f);
 
-    var x = Matrix4.CreatePerspectiveFieldOfView(
-        MathHelper.DegreesToRadians(90f),
-        //Size.X / (float)Size.Y
-        AspectRatio
-       // 1.0f
-        , 0.1f, 1000f);
-    
-        return x;
+    var deDebug = MathHelper.DegreesToRadians(GezichtsVeldFieldOfView);
+
+    Matrix4 deMatrix = Matrix4.CreatePerspectiveFieldOfView(deDebug
+        , 
+        AspectRatio,
+        1.0f,
+        1000.0f);
+
+    return deMatrix;
   }
 }

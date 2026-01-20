@@ -60,7 +60,6 @@ public class AlgemeneShader { // basis om vanaf te leiden
       Console.WriteLine($"ERROR: Shader Linken mislukt:\n{infoLog}");
     }
   }
-
   internal void SetVector4(string naam, Vector4 data) {
     // 1. Zoek de locatie van de variabele in de shader (bijv. "model" of "view")
     int location = GL.GetUniformLocation(Handle, naam);

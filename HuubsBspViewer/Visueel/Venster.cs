@@ -5,19 +5,15 @@ using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 public class Venster : GameWindow {
-  // Houd een referentie naar de delegate vast om te voorkomen dat de Garbage Collector hem opruimt
-  private static DebugProc _debugProcCallback = DiverseHelpFuncties.HuubDebugCallback;
-
-  private Tekenen _tekenen;
+  private TekenenVanLevel _tekenen;
 
   private EntiteitAlgemeen _geactiveerdeTrigger = null;
 
-  private SkyboxRenderer _luchtBoxTekenen;
-  private MarkerRenderer _blokjesTekenen;
+  private LuchtTekenen _luchtBoxTekenen;
+  private TekenBlokjes _tekenBlokjes;
+  private TekenLijnBlokken _tekenLijnBlokken;
 
   //======== Triggers ==============================================
-  //private UnitCube _unitCube;// = new UnitCube();
-  //private UnitCube _debugCube;
   private List<EntiteitAlgemeen> _wereldObjecten;
   //======== Triggers ==============================================
 
@@ -30,21 +26,14 @@ public class Venster : GameWindow {
 
   public Dictionary<string, Texture> _textures = new Dictionary<string, Texture>();
   List<TextureGroep> _mapData;
-  private Texture _texture;
+  
   // Noclip variabele
   bool noclip = false;
-
-  //======== Geluid ==============================================
-  private GeluidHelper _geluidHelper;// = new GeluidHelper();
-  //======== Eind Geluid =========================================
 
   //======== Voor bericht ==============================================
   private string _huidigBericht = "";
   private float _berichtTimer = 0.0f;
   //======== bericht ==============================================
-  private int _vaoBlokje;
-  private int _vboBlokje;
-  private Vector3 kleur;
   public Venster(GameWindowSettings gws
         , NativeWindowSettings nws
         , Lader lader
@@ -52,7 +41,7 @@ public class Venster : GameWindow {
         , Vector3 startPositie) : base(gws, nws) {
 
     _lader = lader;
-    _tekenen = new Tekenen();
+    _tekenen = new TekenenVanLevel();
     _botsing = new Botsing(_lader);
     _camera = new Camera(startPositie, Size.X / (float)Size.Y);
     _wereldObjecten = _lader.EntiteitenAlgemeen;
@@ -62,6 +51,9 @@ public class Venster : GameWindow {
 
     Console.WriteLine("Noclip is de N toets !!");
   }
+  /**
+   * Tijdens het laden van het venster
+   */
   protected override void OnLoad() {
     base.OnLoad();
 
@@ -70,33 +62,9 @@ public class Venster : GameWindow {
     _shader = new AlgemeneShader(DiverseHelpFuncties.vertexCode, DiverseHelpFuncties.fragmentCode);
     _shader.Gebruiken();
 
-    // 2. Setup Debug Blokjes (VAO & VBO)
-    _vaoBlokje = GL.GenVertexArray();
-    _vboBlokje = GL.GenBuffer();
-
-    GL.BindVertexArray(_vaoBlokje);
-    GL.BindBuffer(BufferTarget.ArrayBuffer, _vboBlokje);
-
-    // Reserveer ruimte voor 24 Vector3 punten (12 lijnen voor een kubus)
-    GL.BufferData(BufferTarget.ArrayBuffer, 24 * Vector3.SizeInBytes, IntPtr.Zero, BufferUsageHint.DynamicDraw);
-
-    // Koppel de shader-attribuut 'aPos' aan deze VAO
-    int posLoc = GL.GetAttribLocation(_shader.Handle, "aPos");
-    if(posLoc != -1) {
-      GL.EnableVertexAttribArray(posLoc);
-      GL.VertexAttribPointer(posLoc, 3, VertexAttribPointerType.Float, false, 0, 0);
-    }
-
-    // Ontkoppel de VAO zodat andere teken-functies er geen last van hebben
-    GL.BindVertexArray(0);
-    GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
-
     // 3. Audio & Systeem Instellingen
     AlleGeluidenDoen();
     int bron = AL.GenSource();
-
-    //GL.Enable(EnableCap.DebugOutput);
-    //GL.DebugMessageCallback(_debugProcCallback, IntPtr.Zero);
 
     // 4. Scherm & Rendering Instellingen
     GL.ClearColor(0.2f, 0.3f, 0.3f, 1.0f);
@@ -137,8 +105,9 @@ public class Venster : GameWindow {
         $"{DiverseHelpFuncties.basispadQuake2}/env/{luchtNaam}ft.png",
     };
 
-    _luchtBoxTekenen = new SkyboxRenderer(skyboxPaden);
-    _blokjesTekenen = new();
+    _luchtBoxTekenen = new LuchtTekenen(skyboxPaden);
+    _tekenBlokjes = new();
+    _tekenLijnBlokken = new(_shader);
   }
 
   /**
@@ -175,10 +144,13 @@ public class Venster : GameWindow {
 */
   protected override void OnRenderFrame(FrameEventArgs e) {
     base.OnRenderFrame(e);
+    
+    GL.Viewport(0, 0, Size.X, Size.Y);
 
     GL.BindVertexArray(0); // zorg dat er geen VAO actief is
     GL.UseProgram(_shader.Handle); // zorg dat onze shader actief is
-    GL.Uniform1(GL.GetUniformLocation(_shader.Handle, "debugMode"), 0); // geen debug mode
+    int debugLoc = GL.GetUniformLocation(_shader.Handle, "debugMode");
+    GL.Uniform1(debugLoc, 0); // geen debug mode
 
     GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
@@ -186,29 +158,19 @@ public class Venster : GameWindow {
 
     // 2. NU pas de uniform zetten, nadat de shader 'Bound' is
     // Dit voorkomt de "Preview Context" fout omdat de state nu actief is
-    int debugLoc = GL.GetUniformLocation(_shader.Handle, "debugMode");
-    if(debugLoc != -1) {
-      GL.Uniform1(debugLoc, 0);
-    }
 
     _shader.SetMatrix4("model", Matrix4.Identity);
     _shader.SetMatrix4("view", _camera.GetViewMatrix());
     _shader.SetMatrix4("projection", _camera.GetProjectionMatrix());
 
-    _tekenen.HetTekenen(_textures, _shader); // de gele blokjes worden hier NIET getekend
+    _tekenen.TekenenVanHetLevel(_textures, _shader);
+    _tekenLijnBlokken.TekenLijnBlokjes(_shader, _lader.EntiteitenAlgemeen, _camera);
+    _tekenBlokjes.TekenBlokjesDiverseKleuren(_shader, _lader.EntiteitenAlgemeen);
 
-    _blokjesTekenen.TekenMarkers(_shader, _lader.EntiteitenAlgemeen); // de gele blokjes worden hier getekend
+    // Volgens mij moet hier het doel van de entiteit bepaald worden
+    // en dan gehaald uit het model "*2" of "*36" etc.
 
-    // TEKEN HIER DE TRIGGERS
-    // Optie A: Teken ALTIJD alle triggers (handig voor debuggen)
-    foreach(var ent in _wereldObjecten.Where(x => x.ClassNaam.StartsWith("trigger")
-    || x.ClassNaam == "target_speaker")) {
-      Vector3 kleurLijn = new Vector3(0, 1, 1); // Standaard Cyaan
-      if(ent == _geactiveerdeTrigger) kleurLijn = new Vector3(1, 1, 1); // Wit als we erin staan
 
-      TekenBlokje(ent, kleurLijn);
-    }
-    
     LoopDoorDeWereldCheckTrigger(); 
 
     if(!string.IsNullOrEmpty(_huidigBericht)) {
@@ -235,13 +197,13 @@ public class Venster : GameWindow {
         string hetGeluid = $"{DiverseHelpFuncties.basispadQuake2}/sound/{geluidEntiteit.GeluidPad}";
         geluidHelper.HaalBuffer(hetGeluid);
         //Console.WriteLine($"Omgevingsgeluid starten: {hetGeluid}");
-        geluidHelper.Speel(hetGeluid, geluidEntiteit);
+        geluidHelper.SpeelGeluid(hetGeluid, geluidEntiteit);
       } else {
         Console.WriteLine($"Omgevingsgeluid al actief: {geluidEntiteit.GeluidPad}");
       }
     } // eind foreach
 
-    var deb = 1;
+    Console.WriteLine($"Totaal omgevingsgeluiden gestart: {omgevingsGeluiden.Count}\n\n\n");
   }
   /**
    * Hier afhankelijk van de beweging de nieuwe positie berekenen
@@ -287,7 +249,7 @@ public class Venster : GameWindow {
         _geactiveerdeTrigger = entiteitAlgemeen;
         if(!entiteitAlgemeen.WasAlGeactiveerd) {
           entiteitAlgemeen.WasAlGeactiveerd = true;
-          ActiveerHetDoel(entiteitAlgemeen);
+          ActiveerHetDoel(entiteitAlgemeen, _camera);
         }
       }
 
@@ -299,7 +261,10 @@ public class Venster : GameWindow {
       }
     }
   }
-
+  protected override void OnResize(ResizeEventArgs e) {
+    base.OnResize(e);
+    GL.Viewport(0, 0, e.Width, e.Height);
+  }
 
   protected override void OnKeyDown(KeyboardKeyEventArgs e) {
     //Console.WriteLine("Key down: " + e.Key.ToString());
@@ -362,13 +327,15 @@ public class Venster : GameWindow {
    * Hier als er tegen een doel aangelopen wordt.
    * Bijvoorbeeld een knop. func_button.
    */
-  private void ActiveerHetDoel(EntiteitAlgemeen entiteitAlgemeenDoel) {
+  private void ActiveerHetDoel(EntiteitAlgemeen entiteitAlgemeenDoel, Camera camera) {
     string debugTekst = $"LoopDoorDeWereld ActiveerHetDoel:";
     debugTekst = $"{debugTekst} class: {entiteitAlgemeenDoel.ClassNaam} op {entiteitAlgemeenDoel.Positie}";
     debugTekst = $"{debugTekst} doel: {entiteitAlgemeenDoel.Doel} MaximumCoordinaat: {entiteitAlgemeenDoel.MaximumCoordinaat}";
     debugTekst = $"{debugTekst} modelIndex: {entiteitAlgemeenDoel.ModelIndex} MinimumCoordinaat: {entiteitAlgemeenDoel.MinimumCoordinaat}";
+    debugTekst = $"{debugTekst} camera.Posistie: {camera.Positie}";
 
     Console.WriteLine(debugTekst);
+    var debugje = _lader.Modellen;
 
     // Zoek ALLE entiteiten die deze naam als doelnaam hebben
     List<EntiteitAlgemeen> entiteiten = _lader.EntiteitenAlgemeen.Where(s => s.DoelNaam == entiteitAlgemeenDoel.Doel).ToList();
@@ -411,10 +378,14 @@ public class Venster : GameWindow {
         break;
 
       case "func_button":
-        // Deze entiteiten doen we niets mee bij activeren
-        var deb = 1;
+        monsterPad = "switches/butn2"; 
+        monsterGevonden = true;
         break;
       case "func_door":
+      case "sp_func_door":
+        monsterPad = "doors/dr1_strt"; // moet in het midden dr1_mid zijn en dr1_end aan het eind
+        monsterGevonden = true;
+        break;
       case "func_train":
       case "func_plat":
       case "func_areaportal":
@@ -426,6 +397,7 @@ public class Venster : GameWindow {
       case "info_player_intermission":
       case "func_wall":
       case "ammo_shells":
+      case "light":
         if(!string.IsNullOrEmpty(entiteitAlgemeenDoel.Boodschap)) {
           ToonBericht(entiteitAlgemeenDoel.Boodschap);
         } else {
@@ -435,7 +407,7 @@ public class Venster : GameWindow {
        break;
       ////====================================================================
       default:
-        Console.WriteLine($"Default: {entiteitAlgemeenDoel.Doel} met naam {entiteitAlgemeenDoel.DoelNaam} heeft classnaam: {entiteitAlgemeenDoel.ClassNaam}");
+        Console.WriteLine($"Default in ActiveerHetDoel: {entiteitAlgemeenDoel.Doel} met naam {entiteitAlgemeenDoel.DoelNaam} heeft classnaam: {entiteitAlgemeenDoel.ClassNaam}");
         break;
     }
 
@@ -445,62 +417,9 @@ public class Venster : GameWindow {
     }
 
     if(!string.IsNullOrEmpty(hetGeluid)) {
-      geluidHelper.Speel(hetGeluid, entiteitAlgemeenDoel);
+      geluidHelper.SpeelGeluid(hetGeluid, entiteitAlgemeenDoel);
       Console.WriteLine($"[Actie] {entiteitAlgemeenDoel.ClassNaam} geluid gemaakt: {hetGeluid}");
     }
   }
-  private void TekenBlokje(EntiteitAlgemeen entiteit, Vector3 kleur) {
-    //Vector3 min = entiteit.MinimumCoordinaat;
-    //Vector3 max = entiteit.MaximumCoordinaat;
-    Vector3 offset = entiteit.Positie;
-    Vector3 min = entiteit.MinimumCoordinaat + offset;
-    Vector3 max = entiteit.MaximumCoordinaat + offset;
 
-    // Maak kleine punten zichtbaar als een 16x16x16 box
-    if(min == max) { min -= Vector3.One * 8; max += Vector3.One * 8; }
-
-    Vector3[] lijnen = new Vector3[] {
-        new(min.X, min.Y, min.Z), new(max.X, min.Y, min.Z),
-        new(max.X, min.Y, min.Z), new(max.X, max.Y, min.Z),
-        new(max.X, max.Y, min.Z), new(min.X, max.Y, min.Z),
-        new(min.X, max.Y, min.Z), new(min.X, min.Y, min.Z),
-        new(min.X, min.Y, max.Z), new(max.X, min.Y, max.Z),
-        new(max.X, min.Y, max.Z), new(max.X, max.Y, max.Z),
-        new(max.X, max.Y, max.Z), new(min.X, max.Y, max.Z),
-        new(min.X, max.Y, max.Z), new(min.X, min.Y, max.Z),
-        new(min.X, min.Y, min.Z), new(min.X, min.Y, max.Z),
-        new(max.X, min.Y, min.Z), new(max.X, min.Y, max.Z),
-        new(max.X, max.Y, min.Z), new(max.X, max.Y, max.Z),
-        new(min.X, max.Y, min.Z), new(min.X, max.Y, max.Z)
-    };
-
-    _shader.Gebruiken();
-
-    // 1. Update de data (BufferData dwingt een 'verse' buffer af bij de driver)
-    GL.BindBuffer(BufferTarget.ArrayBuffer, _vboBlokje);
-    GL.BufferData(BufferTarget.ArrayBuffer, lijnen.Length * Vector3.SizeInBytes, lijnen, BufferUsageHint.StreamDraw);
-
-    // 2. Bind de VAO (hiermee staan de pointers naar aPos direct goed)
-    GL.BindVertexArray(_vaoBlokje);
-
-    // 3. Matrices
-    _shader.SetMatrix4("projection", _camera.GetProjectionMatrix());
-    _shader.SetMatrix4("view", _camera.GetViewMatrix());
-    _shader.SetMatrix4("model", Matrix4.Identity);
-
-    // 4. Shader uniforms
-    GL.Uniform1(GL.GetUniformLocation(_shader.Handle, "debugMode"), 1);
-    GL.Uniform4(GL.GetUniformLocation(_shader.Handle, "debugColor"), new Color4(kleur.X, kleur.Y, kleur.Z, 1.0f));
-    GL.Uniform1(GL.GetUniformLocation(_shader.Handle, "isMarker"), 0);
-
-    // 5. Tekenen
-    GL.LineWidth(2.0f);
-    GL.Disable(EnableCap.DepthTest); // X-Ray om ze sowieso te vinden
-    GL.DrawArrays(PrimitiveType.Lines, 0, 24);
-    GL.Enable(EnableCap.DepthTest);
-
-    // 6. Reset
-    GL.BindVertexArray(0);
-    GL.Uniform1(GL.GetUniformLocation(_shader.Handle, "debugMode"), 0);
-  }
 }

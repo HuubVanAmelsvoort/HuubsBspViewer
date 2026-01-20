@@ -1,0 +1,65 @@
+﻿De melding **`GL_INVALID_OPERATION: Target buffer must be bound`** komt uit **OpenGL**
+(niet specifiek uit C#, maar vaak via OpenTK / SharpGL / Silk.NET).
+
+Hij betekent simpel gezegd: *je roept een OpenGL-functie aan die met een buffer werkt, maar er is géén buffer gebonden aan het vereiste target.*
+
+### Wat gaat er mis?
+OpenGL werkt met een **state machine**. Veel functies verwachten dat eerst een buffer is gebonden met `glBindBuffer`.
+Als dat niet zo is, krijg je deze fout.
+
+### Meest voorkomende oorzaken
+#### 1. Buffer niet gebonden vóór gebruik
+Bijvoorbeeld:
+GL.BufferData(BufferTarget.ArrayBuffer, data.Length, data, BufferUsageHint.StaticDraw);
+➡️ **Fout**, als je dit niet vooraf doet:
+GL.BindBuffer(BufferTarget.ArrayBuffer, vbo);
+✅ Correct:
+GL.BindBuffer(BufferTarget.ArrayBuffer, vbo);
+GL.BufferData(BufferTarget.ArrayBuffer, data.Length, data, BufferUsageHint.StaticDraw);
+---
+
+#### 2. Verkeerd target gebruikt
+Je bindt één type buffer, maar gebruikt een ander target.
+❌ Fout:
+GL.BindBuffer(BufferTarget.ElementArrayBuffer, ebo);
+GL.BufferData(BufferTarget.ArrayBuffer, size, data, BufferUsageHint.StaticDraw);
+✅ Correct:
+GL.BindBuffer(BufferTarget.ElementArrayBuffer, ebo);
+GL.BufferData(BufferTarget.ElementArrayBuffer, size, data, BufferUsageHint.StaticDraw);
+---
+
+#### 3. VAO niet gebonden (bij moderne OpenGL)
+Bij **core profile OpenGL** moet een **Vertex Array Object (VAO)** actief zijn voordat je VBO’s en attribute pointers gebruikt.
+❌ Fout:
+GL.BindBuffer(BufferTarget.ArrayBuffer, vbo);
+GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, stride, 0);
+✅ Correct:
+GL.BindVertexArray(vao);
+GL.BindBuffer(BufferTarget.ArrayBuffer, vbo);
+GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, stride, 0);
+---
+
+#### 4. Buffer-ID is 0
+Als `glGenBuffer` niet is aangeroepen of faalt:
+int vbo = 0;
+GL.BindBuffer(BufferTarget.ArrayBuffer, vbo); // bindt niets!
+Controleer:
+GL.GenBuffer(out vbo);
+---
+
+### Hoe debug je dit snel?
+1. Controleer **voor elke `BufferData`, `VertexAttribPointer`, `MapBuffer`, `DrawElements`**:
+   * Is het juiste buffer-target gebonden?
+   * Is de buffer-ID ≠ 0?
+   * Is een VAO actief?
+
+2. Gebruik:
+var error = GL.GetError();
+---
+### Samenvatting
+De fout ontstaat doordat:
+* ❌ geen buffer is gebonden
+* ❌ een verkeerd buffer-target wordt gebruikt
+* ❌ geen VAO actief is (core profile)
+* ❌ buffer-ID = 0 is
+Als je wilt, kun je een **stukje van je C# OpenGL-code** posten, dan wijs ik exact aan waar het fout gaat.

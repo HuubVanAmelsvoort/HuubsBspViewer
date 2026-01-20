@@ -1,0 +1,8 @@
+﻿Na lang zoeken een bsp naar map gevonden die goed werkt met TrenchBroom.
+https://github.com/wfowler1/bsp-decompiler
+Deze tool converteert BSP bestanden naar .map bestanden die TrenchBroom kan openen en bewerken.
+
+TrenchBroom is een open-source level editor voor Quake-engine gebaseerde games.
+Een eigen Huub3d map maken kan met deze editor.
+
+.\TrenchBroom-Win64-v2024.1 heeft een game map. Zie verder project aanvullingentrenchbroom.

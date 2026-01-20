@@ -11,9 +11,9 @@ public class Texture {
     //StbImage.stbi_set_flip_vertically_on_load(1);
 
     if (!File.Exists(pad)) {
-      Console.WriteLine($"FOUT: Textuur bestand niet gevonden op: {Path.GetFullPath(pad)}");
+      Console.WriteLine($"FOUT: Plaatje bestand niet gevonden op: {Path.GetFullPath(pad)}");
     } else {
-      //Console.WriteLine($"Textuur {pad} geladen.");
+      //Console.WriteLine($"Plaatje: {pad} geladen.");
     }
     using (Stream stream = File.OpenRead(pad)) {
       ImageResult image = ImageResult.FromStream(stream, ColorComponents.RedGreenBlueAlpha);
@@ -31,24 +31,24 @@ public class Texture {
   /**
    * Volgende zijn 6 vlakken voor de luchten
    */
-  public int LaadCubeMap(List<string> paden) {
-    int handle = GL.GenTexture();
-    GL.BindTexture(TextureTarget.TextureCubeMap, handle);
+  //public int LaadCubeMap(List<string> paden) {
+  //  int handle = GL.GenTexture();
+  //  GL.BindTexture(TextureTarget.TextureCubeMap, handle);
 
-    for(int i = 0; i < paden.Count; i++) {
-      using(Stream stream = File.OpenRead(paden[i])) {
-        ImageResult image = ImageResult.FromStream(stream, ColorComponents.RedGreenBlueAlpha);
-        GL.TexImage2D(TextureTarget.TextureCubeMapPositiveX + i, 0,
-            PixelInternalFormat.Rgba, image.Width, image.Height, 0,
-            PixelFormat.Rgba, PixelType.UnsignedByte, image.Data);
-      }
-    }
-    // Filters instellen
-    GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
-    GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
+  //  for(int i = 0; i < paden.Count; i++) {
+  //    using(Stream stream = File.OpenRead(paden[i])) {
+  //      ImageResult image = ImageResult.FromStream(stream, ColorComponents.RedGreenBlueAlpha);
+  //      GL.TexImage2D(TextureTarget.TextureCubeMapPositiveX + i, 0,
+  //          PixelInternalFormat.Rgba, image.Width, image.Height, 0,
+  //          PixelFormat.Rgba, PixelType.UnsignedByte, image.Data);
+  //    }
+  //  }
+  //  // Filters instellen
+  //  GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
+  //  GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
 
-    return handle;
-  }
+  //  return handle;
+  //}
   public void Gebruik() {
     GL.BindTexture(TextureTarget.Texture2D, Handle);
   }

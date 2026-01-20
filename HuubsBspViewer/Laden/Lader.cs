@@ -98,10 +98,10 @@ public class Lader {
   private void LeesShader() {
     try {
       // Zorg ervoor dat "bestand.txt" in dezelfde map staat, of geef het volledige pad op.
-      DiverseHelpFuncties.fragmentCode = File.ReadAllText("Shaders/shader.frag");
-      DiverseHelpFuncties.vertexCode = File.ReadAllText("Shaders/shader.vert");
-      DiverseHelpFuncties.fragmentCodeLucht = File.ReadAllText("Shaders/lucht.frag");
-      DiverseHelpFuncties.vertexCodeLucht = File.ReadAllText("Shaders/lucht.vert");
+      DiverseHelpFuncties.fragmentCode = File.ReadAllText("Shaders/shader.frag.cs");
+      DiverseHelpFuncties.vertexCode = File.ReadAllText("Shaders/shader.vert.cs");
+      DiverseHelpFuncties.fragmentCodeLucht = File.ReadAllText("Shaders/lucht.frag.cs");
+      DiverseHelpFuncties.vertexCodeLucht = File.ReadAllText("Shaders/lucht.vert.cs");
       // Console.WriteLine(BspHelper.fragmentCode);
       // Console.WriteLine(BspHelper.vertexCode);
     } catch(Exception e) {
@@ -432,6 +432,8 @@ public class Lader {
         case "target_help":
         case "target_secret":
         case "target_speaker":
+        case "target_character":
+          
           EntiteitenAlgemeen.Add(entiteitAlgemeen);
           break;
         //==========================================================================
@@ -439,6 +441,7 @@ public class Lader {
         case "trigger_multiple":
         case "trigger_once":
         case "trigger_relay":
+        case "trigger_push":
           EntiteitenAlgemeen.Add(entiteitAlgemeen);
           break;
         //==========================================================================

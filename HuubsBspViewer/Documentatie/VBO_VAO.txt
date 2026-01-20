@@ -1,0 +1,38 @@
+﻿In de wereld van OpenGL (en grafische programmering) zijn VBO en VAO de twee belangrijkste bouwstenen
+om data van je CPU (processor) naar de GPU (videokaart) te sturen. 
+Je kunt ze het beste zien als een magazijn en een instructieboekje.
+
+1. VBO (Vertex Buffer Object) - "Het Magazijn"
+    Een VBO is simpelweg een brok geheugen op je videokaart. 
+    Hierin sla je de ruwe getallen op die je model beschrijven.
+    Wat zit erin? Alle coördinaten (X, Y, Z), kleurgegevens en texture-coördinaten (U, V).
+    Wat doet het? Het zorgt ervoor dat de videokaart niet telkens aan de processor hoeft te vragen: 
+    "Waar staan de punten?", want ze staan al in het snelle geheugen van de videokaart zelf.
+    In jouw project: De List<float> met alle getallen uit de BSP-file wordt via GL.BufferData in een VBO gepompt.
+    
+2. VAO (Vertex Array Object) - "Het Instructieboekje"
+Een VBO is maar een lange lijst met getallen. De videokaart weet van zichzelf niet of die getallen posities, 
+kleuren of texture-informatie zijn. 
+
+De VAO lost dit op.
+    Wat doet het? Een VAO onthoudt de lay-out van je data. Het vertelt OpenGL:
+        "De eerste 3 getallen zijn de positie (X, Y, Z)."
+        "De volgende 2 getallen zijn de texture-coördinaten (U, V)."
+    Waarom is het handig? In plaats van telkens opnieuw te moeten vertellen hoe de data in elkaar zit (GL.VertexAttribPointer), 
+    hoef je alleen de VAO te "binden" (GL.BindVertexArray). OpenGL weet dan direct hoe hij de data uit de gekoppelde VBO moet lezen.
+
+Hoe ze samenwerken in jouw code
+
+Stel je hebt een muur met een baksteen-textuur:
+    Je maakt een VBO en vult deze met de hoekpunten van die muur.
+    Je maakt een VAO en stelt in dat de eerste 3 floats "posities" zijn en de volgende 2 "UV-coördinaten".
+    Bij het tekenen zeg je: "Gebruik VAO X" en "Teken nu".
+    
+Het grote voordeel: Omdat je nu een Dictionary gebruikt met verschillende groepen, 
+heeft elke textuur-groep (zoals walls/brick) zijn eigen VAO en VBO. 
+Hierdoor hoef je tijdens het renderen alleen maar te wisselen van VAO om een compleet ander deel van de map met andere eigenschappen te tekenen.
+
+Samengevat:
+    VBO: De data (de zak met getallen).
+    VAO: De configuratie (hoe moeten we die getallen interpreteren).
+==============================================================================================================

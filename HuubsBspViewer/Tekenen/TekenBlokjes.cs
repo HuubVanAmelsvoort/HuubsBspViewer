@@ -2,12 +2,12 @@
 using OpenTK.Mathematics;
 using System.Globalization;
 
-public class MarkerRenderer {
+public class TekenBlokjes {
   private readonly int _vao;
   private readonly int _vbo;
   private readonly int _vertexCount;
 
-  public MarkerRenderer() {
+  public TekenBlokjes() {
     // Definiëer een kleine kubus (-8 tot 8 units)
     float[] vertices = {
     // Achterkant
@@ -28,53 +28,48 @@ public class MarkerRenderer {
     // Bovenkant
     -8f,  8f, -8f,  8f,  8f, -8f,  8f,  8f,  8f,
      8f,  8f,  8f, -8f,  8f,  8f, -8f,  8f, -8f
-};
-    _vertexCount = vertices.Length / 3; // Dit wordt nu 36
+      };
+    _vertexCount = vertices.Length / 3; 
 
     _vao = GL.GenVertexArray();
     _vbo = GL.GenBuffer();
+
     GL.BindVertexArray(_vao);
     GL.BindBuffer(BufferTarget.ArrayBuffer, _vbo);
+
+    DiverseHelpFuncties.ControleerGLFout("TekenBlokjes");
+
     GL.BufferData(BufferTarget.ArrayBuffer, vertices.Length * sizeof(float), vertices, BufferUsageHint.StaticDraw);
     GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 3 * sizeof(float), 0);
     GL.EnableVertexAttribArray(0);
   }
-  public void TekenMarkers(AlgemeneShader shader, List<EntiteitAlgemeen> doelen) {
+  public void TekenBlokjesDiverseKleuren(AlgemeneShader shader, List<EntiteitAlgemeen> entiteitenAlgemeen) {
     shader.Gebruiken();
-    //int isMarkerLoc = GL.GetUniformLocation(shader.Handle, "isMarker");
 
-    int markerFlagLoc = GL.GetUniformLocation(shader.Handle, "isMarker");
-    int colorLoc = GL.GetUniformLocation(shader.Handle, "markerKleur");
+    Vector4 kleur;
+    int isMarker = GL.GetUniformLocation(shader.Handle, "isMarker");
+    int markerKleur = GL.GetUniformLocation(shader.Handle, "markerKleur");
 
-    GL.Uniform1(markerFlagLoc, 1);
+    GL.Uniform1(isMarker, 1); // zet de marker modus aan in de shader
 
     GL.BindVertexArray(_vao);
 
-    foreach(EntiteitAlgemeen doel in doelen) {
-      Vector3 nieuwePositie = ParseQuakeCoordinaten(doel.Positie.ToString());
-
-      //if(doel.ClassNaam == "target_speaker") {
-      //  Console.WriteLine($"Speaker gevonden op: X:{doel.Positie.X} Y:{doel.Positie.Y} Z:{doel.Positie.Z} - Geluid: {doel.GeluidPad}");
-      //}
-      // De 'doel.Positie' is hier al de geconverteerde Vector3
-      Matrix4 model = Matrix4.CreateTranslation(doel.Positie);
-      shader.SetMatrix4("model", model);
+    foreach(EntiteitAlgemeen entiteitAlgemeen in entiteitenAlgemeen) {
+      Vector3 nieuwePositie = ParseQuakeCoordinaten(entiteitAlgemeen.Positie.ToString());
 
       // Bepaal kleur op basis van type
-      Vector4 kleur = doel.ClassNaam == "target_speaker"
-          ? new Vector4(0.0f, 1.0f, 1.0f, 1.0f) // Cyaan voor geluid
-          : new Vector4(1.0f, 1.0f, 0.0f, 1.0f); // Geel voor de rest
+      Vector3 kleur3 = DiverseHelpFuncties.KleurVanClassNaam(entiteitAlgemeen.ClassNaam);
+      kleur = new Vector4(kleur3, 1.0f);
 
-      // Zet de model matrix voor dit specifieke blokje
-      //Matrix4 model = Matrix4.CreateTranslation(doel.Positie);
-      //shader.SetMatrix4("model", model);
-      //shader.SetVector4("markerKleur", kleur); // Als je shader kleur ondersteunt
-      //int colorLoc = GL.GetUniformLocation(shader.Handle, "markerKleur");
-      GL.Uniform4(colorLoc, kleur);
+      // De 'doel.Positie' is hier al de geconverteerde Vector3
+      Matrix4 model = Matrix4.CreateTranslation(entiteitAlgemeen.Positie);
+      shader.SetMatrix4("model", model);
 
+      GL.Uniform4(markerKleur, kleur);
       GL.DrawArrays(PrimitiveType.Triangles, 0, _vertexCount);
     }
-    GL.Uniform1(markerFlagLoc, 0);
+
+    GL.Uniform1(isMarker, 0); // zet de marker modus uit in de shader
   }
   public Vector3 ParseQuakeCoordinaten(string input) {
     // Verwijder haakjes en vervang puntkomma's door spaties

@@ -2,9 +2,7 @@
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
-using System.Reflection.Metadata.Ecma335;
 using System.Runtime.InteropServices;
-using System.Text;
 
 public static class DiverseHelpFuncties {
 
@@ -27,7 +25,7 @@ public static class DiverseHelpFuncties {
 
   internal static int LUCHT = 4;
   internal static string luchtNaam;
-  internal static float deStartHoek;
+  internal static float deStartHoek = 270;
 
   //========================= Toetsen status ==============================
   public static bool wIngedrukt;
@@ -131,8 +129,106 @@ public static class DiverseHelpFuncties {
   }
   private static void BepaalDeStartHoek(Entiteit entiteit) {
     string waarde = entiteit.Attributen["angle"];
-    deStartHoek = float.Parse(waarde);
+    deStartHoek = float.Parse(waarde) + 90f;
     //deStartHoek = 180f;
     // TODO misschien dat hier de starthoek nog omgezet moet worden
+  }
+  /**
+   * Bepaal kleur voor lijnblokje op basis van class naam
+   * Voor de blokjes rond triggers en andere entiteiten
+   */
+  public static Vector3 KleurVanClassNaam(string classNaam) {
+    Vector3 kleurLijn;
+    switch(classNaam) {
+      case "ammo_bullets":
+      case "ammo_grenades":
+      case "ammo_rockets":
+      case "ammo_shells":
+      case "ammo_slugs":
+      case "func_areaportal":
+      case "func_button":
+      case "func_door":
+      case "func_door_rotating":
+      case "func_explosive":
+      case "func_group":
+      case "func_plat":
+      case "func_rotating":
+      case "func_timer":
+      case "func_wall":
+      case "info_player_coop":
+      case "info_player_deathmatch":
+      case "info_player_intermission":
+      case "info_player_start":
+      case "item_armor_combat":
+      case "item_armor_jacket":
+      case "item_armor_shard":
+      case "item_health":
+      case "item_health_large":
+      case "item_health_small":
+      case "item_invulnerability":
+      case "item_quad":
+      case "light":
+      case "misc_deadsoldier":
+      case "misc_explobox":
+      case "misc_gib_head":
+      case "monster_flyer":
+      case "monster_gunner":
+      case "monster_infantry":
+      case "monster_soldier_light":
+      case "monster_soldier_ss":
+      case "path_corner":
+      case "point_combat":
+      case "target_changelevel":
+      case "target_crosslevel_target":
+      case "target_explosion":
+      case "target_goal":
+      case "target_help":
+      case "target_secret":
+      case "weapon_chaingun":
+      case "weapon_grenadelauncher":
+      case "weapon_machinegun":
+      case "weapon_railgun":
+      case "weapon_rocketlauncher":
+      case "weapon_shotgun":
+      case "weapon_supershotgun":
+      case "worldspawn":
+        kleurLijn = new Vector3(0.5f, 0.5f, 0.5f); // Grijs
+        break;
+      case "target_speaker":
+        kleurLijn = new Vector3(1, 0, 0); // Rood
+        break;
+      case "trigger_always":
+        kleurLijn = new Vector3(0, 1, 0); // Groen
+        break;
+      case "trigger_multiple":
+        kleurLijn = new Vector3(0, 0, 1); // Blauw
+        break;
+      case "trigger_once":
+        kleurLijn = new Vector3(1, 1, 0); // Geel
+        break;
+      case "trigger_relay":
+        kleurLijn = new Vector3(1, 0, 1); // Magenta
+        break;
+      default:
+        kleurLijn = new Vector3(0, 1, 1); // Cyaan
+        Console.WriteLine($"Default in trigger: {classNaam}");
+        break;
+    }
+    return kleurLijn;
+  }
+  /**
+   * Zowel een AL als GL fout afvangen.
+   */
+  internal static void ControleerGLFout(string herkomst) {
+    ALError fout = AL.GetError();
+    if(fout != ALError.NoError) {
+      Console.WriteLine($"OpenAL Fout bij herkomst: {fout}");
+    }
+    //GLErrorCode glFout = GL.GetError();
+
+    OpenTK.Graphics.OpenGL4.ErrorCode glFout = GL.GetError();
+    if(glFout != OpenTK.Graphics.OpenGL4.ErrorCode.NoError) {
+      Console.WriteLine($"glFout bij herkomst: {glFout}");
+    }
   }
 }

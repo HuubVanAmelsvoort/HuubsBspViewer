@@ -28,7 +28,7 @@ public class GeluidHelper {
     ALC.DestroyContext(_context);
     ALC.CloseDevice(_device);
   }
-  internal void Speel(string bestandPad, EntiteitAlgemeen entiteitAlgemeenDoel) {
+  internal void SpeelGeluid(string bestandPad, EntiteitAlgemeen entiteitAlgemeenDoel) {
     // 1. Flush oude fouten
     AL.GetError();
 
@@ -81,10 +81,7 @@ public class GeluidHelper {
     AL.SourcePlay(_bronId);
 
     // 7. Laatste foutcontrole
-    ALError fout = AL.GetError();
-    if(fout != ALError.NoError) {
-      Console.WriteLine($"OpenAL Fout bij {entiteitAlgemeenDoel.ClassNaam}: {fout}");
-    }
+    DiverseHelpFuncties.ControleerGLFout("SpeelGeluid");
   }
   internal void ZetVolume(EntiteitAlgemeen entiteit, float afstand, float maxAfstand) {
     // Bereken het volume: 1.0 (dichtbij) naar 0.0 (ver weg)

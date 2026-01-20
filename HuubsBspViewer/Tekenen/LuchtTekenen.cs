@@ -1,9 +1,9 @@
-﻿// SkyboxRenderer.cs
+﻿// LuchtTekenen.cs
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 using StbImageSharp; // Voor het laden van PNG's
 
-public class SkyboxRenderer {
+public class LuchtTekenen {
   private int _vao;
   private int _vbo;
   private int _cubemapHandle;
@@ -55,7 +55,7 @@ public class SkyboxRenderer {
          1.0f, -1.0f,  1.0f
     };
 
-  public SkyboxRenderer(List<string> texturePaden) {
+  public LuchtTekenen(List<string> texturePaden) {
     _LuchtShader = new AlgemeneShader(DiverseHelpFuncties.vertexCodeLucht, DiverseHelpFuncties.fragmentCodeLucht); // Compileer de skybox shader
 
     // 1. VAO en VBO voor de kubus
