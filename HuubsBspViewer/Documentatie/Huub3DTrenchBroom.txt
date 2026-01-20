@@ -6,3 +6,9 @@ TrenchBroom is een open-source level editor voor Quake-engine gebaseerde games.
 Een eigen Huub3d map maken kan met deze editor.
 
 .\TrenchBroom-Win64-v2024.1 heeft een game map. Zie verder project aanvullingentrenchbroom.
+
+Voor het verwerken van pcx naar png kan IrfanView gebruikt worden.
+IrfanView is een gratis beeldviewer en -converter die veel bestandsformaten ondersteunt, waaronder pcx en png.
+Je moet nog wel een plugin installeren om pcx bestanden te kunnen openen.
+https://www.irfanview.com/plugins.htm
+Download en installeer IrfanView en de benodigde plugins.
