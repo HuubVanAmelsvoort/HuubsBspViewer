@@ -1,16 +1,17 @@
 ﻿using OpenTK.Audio.OpenAL;
-using OpenTK.Graphics.OpenGL4;
+using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 public class Venster : GameWindow {
-  private TekenenVanLevel _tekenen;
+  private TekenLevel _tekenLevel;
 
   private EntiteitAlgemeen _geactiveerdeTrigger = null;
 
-  private LuchtTekenen _luchtBoxTekenen;
+  private TekenLucht _luchtBoxTekenen;
   private TekenBlokjes _tekenBlokjes;
+  private TekenModel _tekenModel;
   private TekenLijnBlokken _tekenLijnBlokken;
 
   //======== Triggers ==============================================
@@ -24,7 +25,8 @@ public class Venster : GameWindow {
   private Botsing _botsing;
   private Lader _lader;
 
-  public Dictionary<string, Texture> _textures = new Dictionary<string, Texture>();
+  public Dictionary<string, Texture> _texturesTabel = new Dictionary<string, Texture>();
+
   List<TextureGroep> _mapData;
   
   // Noclip variabele
@@ -41,7 +43,7 @@ public class Venster : GameWindow {
         , Vector3 startPositie) : base(gws, nws) {
 
     _lader = lader;
-    _tekenen = new TekenenVanLevel();
+    _tekenLevel = new TekenLevel();
     _botsing = new Botsing(_lader);
     _camera = new Camera(startPositie, Size.X / (float)Size.Y);
     _wereldObjecten = _lader.EntiteitenAlgemeen;
@@ -74,22 +76,25 @@ public class Venster : GameWindow {
     CursorState = CursorState.Grabbed;
 
     // 5. BSP Data Voorbereiden
-    _tekenen.Voorbereiden(_mapData);
+    _tekenLevel.Voorbereiden(_mapData);
 
     // 6. Textures Laden
+
+    Texture texture = new Texture("Quake2.png");
+
     foreach(var naam in _lader.TextureNamen) {
       if(naam.Contains("trigger")) continue;
 
-      if(!_textures.ContainsKey(naam)) {
+      if(!_texturesTabel.ContainsKey(naam)) {
         string volledigePad = $"{DiverseHelpFuncties.basispadQuake2}/textures/{naam}.png";
         if(File.Exists(volledigePad)) {
-          _textures[naam] = new Texture(volledigePad);
+          _texturesTabel[naam] = new Texture(volledigePad);
         } else {
           // Gebruik placeholder als PNG niet bestaat
-          if(!_textures.ContainsKey("placeholder"))
-            _textures["placeholder"] = new Texture("Quake2.png");
+          if(!_texturesTabel.ContainsKey("placeholder"))
+            _texturesTabel["placeholder"] = new Texture("Quake2.png");
 
-          _textures[naam] = _textures["placeholder"];
+          _texturesTabel[naam] = _texturesTabel["placeholder"];
         }
       }
     }
@@ -105,9 +110,10 @@ public class Venster : GameWindow {
         $"{DiverseHelpFuncties.basispadQuake2}/env/{luchtNaam}ft.png",
     };
 
-    _luchtBoxTekenen = new LuchtTekenen(skyboxPaden);
-    _tekenBlokjes = new();
-    _tekenLijnBlokken = new(_shader);
+    _luchtBoxTekenen = new TekenLucht(skyboxPaden);
+    //_tekenBlokjes = new();
+    _tekenModel = new();
+    //_tekenLijnBlokken = new(_shader);
   }
 
   /**
@@ -129,8 +135,6 @@ public class Venster : GameWindow {
     }
 
     _geactiveerdeTrigger = null; // Reset elke frame
-
-    //    LoopDoorDeWereldCheckTrigger(); naar renderframe verplaatst
 
     if(_berichtTimer > 0) {
       _berichtTimer -= (float)e.Time;
@@ -163,13 +167,13 @@ public class Venster : GameWindow {
     _shader.SetMatrix4("view", _camera.GetViewMatrix());
     _shader.SetMatrix4("projection", _camera.GetProjectionMatrix());
 
-    _tekenen.TekenenVanHetLevel(_textures, _shader);
-    _tekenLijnBlokken.TekenLijnBlokjes(_shader, _lader.EntiteitenAlgemeen, _camera);
-    _tekenBlokjes.TekenBlokjesDiverseKleuren(_shader, _lader.EntiteitenAlgemeen);
+    _tekenLevel.TekenenVanHetLevel(_texturesTabel, _shader);
+    //_tekenLijnBlokken.TekenLijnBlokjes(_shader, _lader.EntiteitenAlgemeen, _camera);
+    //_tekenBlokjes.TekenBlokjesDiverseKleuren(_shader, _lader.EntiteitenAlgemeen);
+    _tekenModel.TekenBlokjesDiverseKleuren(_shader, _lader.EntiteitenAlgemeen);
 
     // Volgens mij moet hier het doel van de entiteit bepaald worden
     // en dan gehaald uit het model "*2" of "*36" etc.
-
 
     LoopDoorDeWereldCheckTrigger(); 
 
@@ -398,6 +402,10 @@ public class Venster : GameWindow {
       case "func_wall":
       case "ammo_shells":
       case "light":
+      case "ammo_bullets":
+      case "info_player_coop":
+      case "info_player_deathmatch":
+      case "target_help":
         if(!string.IsNullOrEmpty(entiteitAlgemeenDoel.Boodschap)) {
           ToonBericht(entiteitAlgemeenDoel.Boodschap);
         } else {

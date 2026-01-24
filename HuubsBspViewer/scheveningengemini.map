@@ -1,0 +1,57 @@
+// entity 0
+{
+"classname" "worldspawn"
+"nextmap" "space"
+"message" "Scheveningen"
+"sky" "unit5_"
+
+// Strand
+{
+( -4096 -1024 -128 ) ( -4096 1024 -128 ) ( -4096 -1024 0 ) textures/sand/sand1 0 0 0 1 1
+( 4096 -1024 -128 ) ( 4096 -1024 0 ) ( 4096 1024 -128 ) textures/sand/sand1 0 0 0 1 1
+( -4096 -1024 -128 ) ( 4096 -1024 -128 ) ( -4096 1024 -128 ) textures/sand/sand1 0 0 0 1 1
+( -4096 -1024 0 ) ( -4096 1024 0 ) ( 4096 -1024 0 ) textures/sand/sand1 0 0 0 1 1
+( -4096 -1024 -128 ) ( -4096 -1024 0 ) ( 4096 -1024 -128 ) textures/sand/sand1 0 0 0 1 1
+( -4096 1024 -128 ) ( 4096 1024 -128 ) ( -4096 1024 0 ) textures/sand/sand1 0 0 0 1 1
+}
+
+// Zee
+{
+( -4096 1024 -512 ) ( -4096 4096 -512 ) ( -4096 1024 -192 ) textures/liquids/water1 0 0 0 1 1
+( 4096 1024 -512 ) ( 4096 1024 -192 ) ( 4096 4096 -512 ) textures/liquids/water1 0 0 0 1 1
+( -4096 1024 -512 ) ( 4096 1024 -512 ) ( -4096 4096 -512 ) textures/liquids/water1 0 0 0 1 1
+( -4096 1024 -192 ) ( -4096 4096 -192 ) ( 4096 1024 -192 ) textures/liquids/water1 0 0 0 1 1
+( -4096 1024 -512 ) ( -4096 1024 -192 ) ( 4096 1024 -512 ) textures/liquids/water1 0 0 0 1 1
+( -4096 4096 -512 ) ( 4096 4096 -512 ) ( -4096 4096 -192 ) textures/liquids/water1 0 0 0 1 1
+}
+
+// Boulevard
+{
+( -2048 -512 0 ) ( -2048 -256 0 ) ( -2048 -512 96 ) textures/concrete/concrete1 0 0 0 1 1
+( 2048 -512 0 ) ( 2048 -512 96 ) ( 2048 -256 0 ) textures/concrete/concrete1 0 0 0 1 1
+( -2048 -512 0 ) ( 2048 -512 0 ) ( -2048 -256 0 ) textures/concrete/concrete1 0 0 0 1 1
+( -2048 -512 96 ) ( -2048 -256 96 ) ( 2048 -512 96 ) textures/concrete/concrete1 0 0 0 1 1
+( -2048 -512 0 ) ( -2048 -512 96 ) ( 2048 -512 0 ) textures/concrete/concrete1 0 0 0 1 1
+( -2048 -256 0 ) ( 2048 -256 0 ) ( -2048 -256 96 ) textures/concrete/concrete1 0 0 0 1 1
+}
+
+// Kurhaus
+{
+( -512 -900 0 ) ( -512 -256 0 ) ( -512 -900 384 ) textures/stone/stone1 0 0 0 1 1
+( 512 -900 0 ) ( 512 -900 384 ) ( 512 -256 0 ) textures/stone/stone1 0 0 0 1 1
+( -512 -900 0 ) ( 512 -900 0 ) ( -512 -256 0 ) textures/stone/stone1 0 0 0 1 1
+( -512 -900 384 ) ( -512 -256 384 ) ( 512 -900 384 ) textures/stone/stone1 0 0 0 1 1
+( -512 -900 0 ) ( -512 -900 384 ) ( 512 -900 0 ) textures/stone/stone1 0 0 0 1 1
+( -512 -256 0 ) ( 512 -256 0 ) ( -512 -256 384 ) textures/stone/stone1 0 0 0 1 1
+}
+
+// Pier
+{
+( -128 1024 96 ) ( -128 2048 96 ) ( -128 1024 192 ) textures/wood/wood1 0 0 0 1 1
+( 128 1024 96 ) ( 128 1024 192 ) ( 128 2048 96 ) textures/wood/wood1 0 0 0 1 1
+( -128 1024 96 ) ( 128 1024 96 ) ( -128 2048 96 ) textures/wood/wood1 0 0 0 1 1
+( -128 1024 192 ) ( -128 2048 192 ) ( 128 1024 192 ) textures/wood/wood1 0 0 0 1 1
+( -128 1024 96 ) ( -128 1024 192 ) ( 128 1024 96 ) textures/wood/wood1 0 0 0 1 1
+( -128 2048 96 ) ( 128 2048 96 ) ( -128 2048 192 ) textures/wood/wood1 0 0 0 1 1
+}
+}

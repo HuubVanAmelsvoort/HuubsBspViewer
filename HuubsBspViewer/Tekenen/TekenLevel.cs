@@ -1,7 +1,8 @@
 ﻿using OpenTK.Graphics.OpenGL4;
-public class TekenenVanLevel {
+
+public class TekenLevel {
   // We slaan nu per textuur de GPU-data op
-  private Dictionary<string, (int vao, int vbo, int aantal)> murenEnPlaatjes = new();
+  private Dictionary<string, (int vao, int vbo, int aantal)> MurenEnPlaatjes = new();
   public void Voorbereiden(List<TextureGroep> groepen) {
     foreach (var groep in groepen) {
       string texNaam = groep.TextureNaam.ToLower(); // Veiligheidshalve lowercase
@@ -14,10 +15,14 @@ public class TekenenVanLevel {
       ) {
         continue;
       }
+      
       //Console.WriteLine($"Voorbereiden textuur: {texNaam}");
 
       texNaam = groep.TextureNaam;
       float[] data = groep.VertexData.ToArray(); // Hier zet je de List om naar Array
+
+      data = VeranderDataVoorTexture(data);
+      
       int aantalPunten = data.Length / 5;
 
       int VertexTabelInstructies = GL.GenVertexArray();
@@ -40,15 +45,16 @@ public class TekenenVanLevel {
       GL.EnableVertexAttribArray(1);
 
       // Bewaar de handles in onze Dictionary
-      murenEnPlaatjes[texNaam] = (VertexTabelInstructies, VertexBufferMagazijn, aantalPunten);
+      MurenEnPlaatjes[texNaam] = (VertexTabelInstructies, VertexBufferMagazijn, aantalPunten);
     }
+    var deb=1;
   }
 
   /**
    * Tekent alle muren en plaatjes die we hebben voorbereid
    */
   public void TekenenVanHetLevel(Dictionary<string, Texture> geladenTextures, AlgemeneShader shader) {
-    foreach (KeyValuePair<string, (int vao, int vbo, int aantal)> muurEnPlaatje in murenEnPlaatjes) {
+    foreach (KeyValuePair<string, (int vao, int vbo, int aantal)> muurEnPlaatje in MurenEnPlaatjes) {
       string texNaam = muurEnPlaatje.Key;
       var (VertexArrayObjectInstructies, VertexBufferObjectMagazijn, aantal) = muurEnPlaatje.Value;
 
@@ -62,4 +68,21 @@ public class TekenenVanLevel {
       GL.DrawArrays(PrimitiveType.Triangles, 0, aantal); 
     }
   }
+  private float[] VeranderDataVoorTexture(float[] data) {
+    // Loop door de data. Stapgrootte is 5 (X, Y, Z, U, V)
+    for(int i = 0; i < data.Length; i += 5) {
+      // data[i+3] is de U (S) coördinaat
+      // data[i+4] is de V (T) coördinaat
+
+      // Pas hier de schaal aan. 
+      // Als hij nu 2x herhaalt, moet je deze waarden door 2 delen.
+      data[i + 3] *= 0.5f;
+      data[i + 4] *= 0.5f;
+      //      data[i + 4] *= -data[i + 4] * 0.5f;
+      //float vOorspronkelijk = data[i + 4];
+      //data[i + 4] = 1.0f - (vOorspronkelijk * 0.25f);
+    }
+    return data;
+  }
+
 }

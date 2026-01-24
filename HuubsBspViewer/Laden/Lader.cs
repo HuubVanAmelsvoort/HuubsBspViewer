@@ -1,6 +1,7 @@
 ﻿using OpenTK.Mathematics;
+using SharpGLTF.Schema2;
 using System.Text;
-using System.Text.RegularExpressions;
+using SharpGLTF.Memory;
 public class Lader {
   public enum DatablokTiepe {
     Entities = 0,
@@ -37,17 +38,13 @@ public class Lader {
   public List<Entiteit> entiteiten = new List<Entiteit>();
   public List<EntiteitAlgemeen> EntiteitenAlgemeen = new List<EntiteitAlgemeen>();
   public List<Model> Modellen = new List<Model>();
-
-  //================= Voor Entiteiten ==========================
-  private static readonly Regex entityHeaderRegex =
-          new Regex(@"//\s*Entity\s*(\d+)", RegexOptions.Compiled);
-
-  private static readonly Regex keyValueRegex =
-      new Regex("\"([^\"]+)\"\\s+\"([^\"]+)\"", RegexOptions.Compiled);
-
+  // Voor Blockbench model laden
+  public Vector3Array positions;
+  public IntegerArray indices;
+  public ModelRoot HetModel;
   //================= Entiteiten ==========================
 
-  public void LaadBestand(string pad) {
+  public void LaadBspBestand(string pad) {
     using(BinaryReader reader = new BinaryReader(File.Open(pad, FileMode.Open))) {
 
       // 3. Alle secties vullen met behulp van de Enum
@@ -68,7 +65,7 @@ public class Lader {
 
       VerwerkEntiteiten();
       LeesShader();
-
+      DiverseHelpFuncties.LadenAfmetingen(this);
       DiverseHelpFuncties.ConsoleLog($"BSP bestand geladen: {pad}", this);
     }
   }
@@ -291,11 +288,11 @@ public class Lader {
     foreach(Entiteit entiteit in entiteiten) {
       EntiteitAlgemeen entiteitAlgemeen = new();
       string classNaam = entiteit.Attributen.ContainsKey("classname") ? entiteit.Attributen["classname"] : "";
-      
-      if (classNaam.Contains("func_button")) {
-        var deb=1;
+
+      if(classNaam.Contains("func_button")) {
+        var deb = 1;
       }
-      
+
       entiteitAlgemeen.ClassNaam = classNaam;
 
       if(entiteit.Attributen.ContainsKey("sky")) {
@@ -370,7 +367,7 @@ public class Lader {
         }
       }
       if(entiteit.Attributen.ContainsKey("dmg")) {
-         bool gelukt2 = int.TryParse(entiteit.Attributen["dmg"], out entiteitAlgemeen.Schade);
+        bool gelukt2 = int.TryParse(entiteit.Attributen["dmg"], out entiteitAlgemeen.Schade);
       }
       if(entiteitAlgemeen.ClassNaam.StartsWith("trigger_")) {
         entiteitAlgemeen.IsTriggerBox = true;
@@ -414,12 +411,14 @@ public class Lader {
         case "light":
         case "misc_deadsoldier":
         case "misc_explobox":
+        case "misc_banner":
         case "misc_gib_head":
         case "monster_flyer":
         case "monster_gunner":
         case "monster_infantry":
         case "monster_soldier_light":
         case "monster_soldier_ss":
+        case "monster_soldier":
         case "path_corner":
         case "point_combat":
           EntiteitenAlgemeen.Add(entiteitAlgemeen);
@@ -433,7 +432,7 @@ public class Lader {
         case "target_secret":
         case "target_speaker":
         case "target_character":
-          
+        case "target_splash":
           EntiteitenAlgemeen.Add(entiteitAlgemeen);
           break;
         //==========================================================================
@@ -453,12 +452,46 @@ public class Lader {
         case "weapon_shotgun":
         case "weapon_supershotgun":
         case "worldspawn":
+        case "func_killbox":
+        case "ammo_cells":
+        case "weapon_bfg":
+        case "func_object":
+        case "target_earthquake":
+        case "monster_boss2":
+        case "target_laser":
+        case "target_actor":
+        case "func_train":
+        case "target_string":
+        case "func_clock":
           EntiteitenAlgemeen.Add(entiteitAlgemeen);
           break;
         default:
+          EntiteitenAlgemeen.Add(entiteitAlgemeen);
           Console.WriteLine($"Onbekende entiteit: {classNaam}");
           break;
       }
     } // eind foreach
+  }
+  /**
+   * Proberen om een Blockbench model te laden via SharpGLTF.
+   * en later weer te geven in OpenTK.
+   */
+  public void LaadBlockbenchModel(string padNaarDeGltf) {
+    HetModel = ModelRoot.Load(padNaarDeGltf);
+
+    // 1. Loop door de meshes (de cubes uit Blockbench)
+    foreach(Mesh mesh in HetModel.LogicalMeshes) {
+      foreach(MeshPrimitive primitive in mesh.Primitives) {
+        // Haal de vertex posities op via de Accessor
+        Accessor accessor = primitive.GetVertexAccessor("POSITION");
+
+        positions = (Vector3Array)accessor.AsVector3Array();
+
+        // Voor de indices (de volgorde van driehoeken tekenen)
+        IntegerArray indices = (IntegerArray)primitive.GetIndexAccessor().AsIndicesArray();
+
+        // Nu kun je deze data naar je eigen BufferObjects sturen
+      }
+    }
   }
 }

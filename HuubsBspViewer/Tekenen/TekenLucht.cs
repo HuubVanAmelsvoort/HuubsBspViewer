@@ -3,7 +3,7 @@ using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 using StbImageSharp; // Voor het laden van PNG's
 
-public class LuchtTekenen {
+public class TekenLucht {
   private int _vao;
   private int _vbo;
   private int _cubemapHandle;
@@ -55,7 +55,7 @@ public class LuchtTekenen {
          1.0f, -1.0f,  1.0f
     };
 
-  public LuchtTekenen(List<string> texturePaden) {
+  public TekenLucht(List<string> texturePaden) {
     _LuchtShader = new AlgemeneShader(DiverseHelpFuncties.vertexCodeLucht, DiverseHelpFuncties.fragmentCodeLucht); // Compileer de skybox shader
 
     // 1. VAO en VBO voor de kubus
@@ -134,3 +134,4 @@ public class LuchtTekenen {
     GL.DepthFunc(DepthFunction.Less); // Zet terug naar standaard dieptetest
   }
 }
+

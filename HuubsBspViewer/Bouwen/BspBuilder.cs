@@ -1,11 +1,11 @@
 ﻿using OpenTK.Mathematics;
-using System.Collections.Generic;
-using System.Reflection.Emit;
 public class BspBuilder {
 
-  public List<TextureGroep> GenereerDriehoeken(Lader lader) {
+  public List<TextureGroep> GenereerDriehoeken(Lader lader, Dictionary<string, (int W, int H)> afmetingen) {
     // We gebruiken een Dictionary om vertices per textuur te groeperen
     Dictionary<string, TextureGroep> groepen = new Dictionary<string, TextureGroep>();
+    int texBreedte = 128; // Haal dit uit je geladen Texture object
+    int texHoogte = 128;
 
     foreach (var vlak in lader.Vlakken) {
 
@@ -28,6 +28,8 @@ public class BspBuilder {
           TextureNaam = texNaam
         };
       }
+      // Haal de afmetingen op voor de huidige textuur
+      var (breedte, hoogte) = afmetingen.ContainsKey(texNaam) ? afmetingen[texNaam] : (128, 128);
 
       // 3. Haal de punten van het vlak op
       List<Vector3> punten = DiverseHelpFuncties.HaalVlakPuntenOp(vlak, lader);
@@ -45,33 +47,17 @@ public class BspBuilder {
   }
 
   private void VoegPuntToe(List<float> lijst, Vector3 punt, BspTexInfo tex) {
-    // Positie (Gebruik de assen die voor jou werkten, bijv. X, Y, Z)
+    // Haal de maten op uit je register (bijv. 256x256)
+    var afmeting = DiverseHelpFuncties.textureAfmetingen[tex.TextureNaam]; // Positie (Gebruik de assen die voor jou werkten, bijv. X, Y, Z)
+
     lijst.Add(punt.X);
     lijst.Add(punt.Y);
     lijst.Add(punt.Z);
 
-    //lijst.Add(punt.X);
-    //lijst.Add(punt.Z);
-    //lijst.Add(-punt.Y);
-
-    // UV-berekening (met de 1.0 - v fix voor ondersteboven textures)
-    float u = (Vector3.Dot(punt, tex.U_As) + tex.U_Offset) / 64.0f;
-    float v = 1.0f - ((Vector3.Dot(punt, tex.V_As) + tex.V_Offset) / 64.0f);
+    float u = (Vector3.Dot(punt, tex.U_As) + tex.U_Offset) * 2.0f / afmeting.breedte;
+    float v = (Vector3.Dot(punt, tex.V_As) + tex.V_Offset) * 2.0f / afmeting.hoogte;
 
     lijst.Add(u);
     lijst.Add(v);
-  }
-  private void DeTexturing(Lader lader, BspVlak vlak, Vector3 Punt) {
-    // Voor elk hoekpunt (Punt) in een Vlak:
-    var tex = lader.TextureInfos[vlak.TextureInfoIndex];
-
-    // De Quake-formule voor texture mapping:
-    float u = Vector3.Dot(Punt, tex.U_As) + tex.U_Offset;
-    float v = Vector3.Dot(Punt, tex.V_As) + tex.V_Offset;
-
-    // Belangrijk: Voorlopig delen we door een standaard grootte (bijv. 64 of 128)
-    // omdat we de echte breedte van het .wal bestand nog niet weten.
-    float finaleU = u / 64.0f;
-    float finaleV = v / 64.0f;
   }
 }

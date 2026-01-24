@@ -1,5 +1,7 @@
-﻿using OpenTK.Audio.OpenAL;
-using OpenTK.Graphics.OpenGL4;
+﻿using StbImageSharp;
+using OpenTK.Audio.OpenAL;
+using OpenTK.Compute.OpenCL;
+using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using System.Runtime.InteropServices;
@@ -32,6 +34,8 @@ public static class DiverseHelpFuncties {
   public static bool sIngedrukt;
   public static bool dIngedrukt;
   public static bool aIngedrukt;
+  //========================= Einde Toetsen status ==============================
+  public static Dictionary<string, (int breedte, int hoogte)> textureAfmetingen = new();
 
   internal static void ConsoleLog(string tekst, Lader lader) {
     Console.WriteLine("[HuubsBspViewer] " + tekst);
@@ -44,6 +48,14 @@ public static class DiverseHelpFuncties {
     Console.WriteLine("[HuubsBspViewer] Aantal surfedges in map: " + lader.SurfEdges.Count);
     Console.WriteLine("[HuubsBspViewer] Aantal texture infos in map: " + lader.TextureInfos.Count);
     Console.WriteLine("[HuubsBspViewer] Aantal entiteiten in map: " + lader.entiteiten.Count);
+    // 2. Animaties ophalen
+    //var animaties = model.LogicalAnimations.FirstOrDefault();
+    foreach(var animatie in lader.HetModel.LogicalAnimations) {
+      var naam = animatie.Name;
+      Console.WriteLine($"Animatie gevonden: {naam}");
+    }
+    // Gebruik animation.Animatible om de transformaties per frame te berekenen
+
 
   }
   // De callback methode:
@@ -209,6 +221,45 @@ public static class DiverseHelpFuncties {
       case "trigger_relay":
         kleurLijn = new Vector3(1, 0, 1); // Magenta
         break;
+      case "target_character":
+        kleurLijn = new Vector3(1, 0, 1); // Magenta
+        break;
+      case "trigger_push":
+        kleurLijn = new Vector3(1, 0, 1); // Magenta
+        break;
+      case "ammo_cells":
+        kleurLijn = new Vector3(1, 0, 1); // Magenta
+        break;
+      case "func_clock":
+        kleurLijn = new Vector3(1, 0, 1); // Magenta
+        break;
+      case "func_killbox":
+        kleurLijn = new Vector3(1, 0, 1); // Magenta
+        break;
+      case "func_object":
+        kleurLijn = new Vector3(1, 0, 1); // Magenta
+        break;
+      case "func_train":
+        kleurLijn = new Vector3(1, 0, 1); // Magenta
+        break;
+      case "target_string":
+        kleurLijn = new Vector3(1, 0, 1); // Magenta
+        break;
+      case "target_laser":
+        kleurLijn = new Vector3(1, 0, 1); // Magenta
+        break;
+      case "monster_boss2":
+        kleurLijn = new Vector3(1, 0, 1); // Magenta
+        break;
+      case "target_actor":
+        kleurLijn = new Vector3(1, 0, 1); // Magenta
+        break;
+      case "target_earthquake":
+        kleurLijn = new Vector3(1, 0, 1); // Magenta
+        break;
+      case "weapon_bfg":
+        kleurLijn = new Vector3(1, 0, 1); // Magenta
+        break;
       default:
         kleurLijn = new Vector3(0, 1, 1); // Cyaan
         Console.WriteLine($"Default in trigger: {classNaam}");
@@ -226,9 +277,24 @@ public static class DiverseHelpFuncties {
     }
     //GLErrorCode glFout = GL.GetError();
 
-    OpenTK.Graphics.OpenGL4.ErrorCode glFout = GL.GetError();
-    if(glFout != OpenTK.Graphics.OpenGL4.ErrorCode.NoError) {
+    OpenTK.Graphics.OpenGL.ErrorCode glFout = GL.GetError();
+    if(glFout != OpenTK.Graphics.OpenGL.ErrorCode.NoError) {
       Console.WriteLine($"glFout bij herkomst: {glFout}");
+    }
+  }
+  public static void LadenAfmetingen(Lader lader) {
+    foreach(var naam in lader.TextureNamen) {
+      string pad = $"{basispadQuake2}/textures/{naam}.png"; // Pas aan naar jouw pad
+      if(File.Exists(pad)) {
+        using(Stream stream = File.OpenRead(pad)) {
+          // Dit laadt alleen de metadata, erg snel!
+          ImageResult info = ImageResult.FromStream(stream, ColorComponents.RedGreenBlueAlpha);
+          textureAfmetingen[naam] = (info.Width, info.Height);
+        }
+      } else {
+        // Fallback als het plaatje ontbreekt (voorkom delen door nul!)
+        textureAfmetingen[naam] = (128, 128);
+      }
     }
   }
 }

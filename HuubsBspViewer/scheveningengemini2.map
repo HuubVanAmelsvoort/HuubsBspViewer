@@ -1,0 +1,56 @@
+// entity 0
+{
+"classname" "worldspawn"
+"message" "Scheveningen - Kurhaus & Pier"
+"sky" "unit5_"
+
+// --- STRAND (Groot oppervlak) ---
+{
+( -8192 -2048 -128 ) ( -8192 2048 -128 ) ( -8192 -2048 0 ) textures/sand/sand1 0 0 0 1 1
+( 8192 -2048 -128 ) ( 8192 -2048 0 ) ( 8192 2048 -128 ) textures/sand/sand1 0 0 0 1 1
+( -8192 -2048 -128 ) ( 8192 -2048 -128 ) ( -8192 2048 -128 ) textures/sand/sand1 0 0 0 1 1
+( -8192 -2048 0 ) ( -8192 2048 0 ) ( 8192 -2048 0 ) textures/sand/sand1 0 0 0 1 1
+( -8192 -2048 -128 ) ( -8192 -2048 0 ) ( 8192 -2048 -128 ) textures/sand/sand1 0 0 0 1 1
+( -8192 2048 -128 ) ( 8192 2048 -128 ) ( -8192 2048 0 ) textures/sand/sand1 0 0 0 1 1
+}
+
+// --- KURHAUS: CENTRALE HAL ---
+{
+( -400 -800 0 ) ( -400 -400 0 ) ( -400 -800 400 ) textures/stone/stone1 0 0 0 1 1
+( 400 -800 0 ) ( 400 -800 400 ) ( 400 -400 0 ) textures/stone/stone1 0 0 0 1 1
+( -400 -800 0 ) ( 400 -800 0 ) ( -400 -400 0 ) textures/stone/stone1 0 0 0 1 1
+( -400 -800 400 ) ( -400 -400 400 ) ( 400 -800 400 ) textures/stone/stone1 0 0 0 1 1
+( -400 -800 0 ) ( -400 -800 400 ) ( 400 -800 0 ) textures/stone/stone1 0 0 0 1 1
+( -400 -400 0 ) ( 400 -400 0 ) ( -400 -400 400 ) textures/stone/stone1 0 0 0 1 1
+}
+
+// --- KURHAUS: KOEPEL (Versimpeld als blok bovenop) ---
+{
+( -250 -650 400 ) ( -250 -550 400 ) ( -250 -650 550 ) textures/stone/stone1 0 0 0 1 1
+( 250 -650 400 ) ( 250 -650 550 ) ( 250 -550 400 ) textures/stone/stone1 0 0 0 1 1
+( -250 -650 400 ) ( 250 -650 400 ) ( -250 -550 400 ) textures/stone/stone1 0 0 0 1 1
+( -250 -650 550 ) ( -250 -550 550 ) ( 250 -650 550 ) textures/stone/stone1 0 0 0 1 1
+( -250 -650 400 ) ( -250 -650 550 ) ( 250 -650 400 ) textures/stone/stone1 0 0 0 1 1
+( -250 -550 400 ) ( 250 -550 400 ) ( -250 -550 550 ) textures/stone/stone1 0 0 0 1 1
+}
+
+// --- DE PIER: WANDELPROMENADE ---
+{
+( -80 1024 100 ) ( -80 3000 100 ) ( -80 1024 160 ) textures/wood/wood1 0 0 0 1 1
+( 80 1024 100 ) ( 80 1024 160 ) ( 80 3000 100 ) textures/wood/wood1 0 0 0 1 1
+( -80 1024 100 ) ( 80 1024 100 ) ( -80 3000 100 ) textures/wood/wood1 0 0 0 1 1
+( -80 1024 160 ) ( -80 3000 160 ) ( 80 1024 160 ) textures/wood/wood1 0 0 0 1 1
+( -80 1024 100 ) ( -80 1024 160 ) ( 80 1024 100 ) textures/wood/wood1 0 0 0 1 1
+( -80 3000 100 ) ( 80 3000 100 ) ( -80 3000 160 ) textures/wood/wood1 0 0 0 1 1
+}
+
+// --- DE PIER: HET EILAND (De kop van de pier) ---
+{
+( -300 3000 100 ) ( -300 3600 100 ) ( -300 3000 250 ) textures/wood/wood1 0 0 0 1 1
+( 300 3000 100 ) ( 300 3000 250 ) ( 300 3600 100 ) textures/wood/wood1 0 0 0 1 1
+( -300 3000 100 ) ( 300 3000 100 ) ( -300 3600 100 ) textures/wood/wood1 0 0 0 1 1
+( -300 3000 250 ) ( -300 3600 250 ) ( 300 3000 250 ) textures/wood/wood1 0 0 0 1 1
+( -300 3000 100 ) ( -300 3000 250 ) ( 300 3000 100 ) textures/wood/wood1 0 0 0 1 1
+( -300 3600 100 ) ( 300 3600 100 ) ( -300 3600 250 ) textures/wood/wood1 0 0 0 1 1
+}
+}
