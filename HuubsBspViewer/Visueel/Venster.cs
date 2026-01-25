@@ -11,7 +11,7 @@ public class Venster : GameWindow {
 
   private TekenLucht _luchtBoxTekenen;
   private TekenBlokjes _tekenBlokjes;
-  private TekenModel _tekenModel;
+  private TekenGltfModel _tekenModel;
   private TekenLijnBlokken _tekenLijnBlokken;
 
   //======== Triggers ==============================================
@@ -111,9 +111,11 @@ public class Venster : GameWindow {
     };
 
     _luchtBoxTekenen = new TekenLucht(skyboxPaden);
-    //_tekenBlokjes = new();
-    _tekenModel = new();
-    //_tekenLijnBlokken = new(_shader);
+    _tekenBlokjes = new();
+    _tekenLijnBlokken = new(_shader);
+
+    string pad = $"D:/werkdirectory/BlockbenchBestanden/Sneeuwpop.gltf";
+    _tekenModel = new(pad);
   }
 
   /**
@@ -168,9 +170,14 @@ public class Venster : GameWindow {
     _shader.SetMatrix4("projection", _camera.GetProjectionMatrix());
 
     _tekenLevel.TekenenVanHetLevel(_texturesTabel, _shader);
-    //_tekenLijnBlokken.TekenLijnBlokjes(_shader, _lader.EntiteitenAlgemeen, _camera);
+
+    _tekenLijnBlokken.TekenLijnBlokjes(_shader, _lader.EntiteitenAlgemeen, _camera);
     //_tekenBlokjes.TekenBlokjesDiverseKleuren(_shader, _lader.EntiteitenAlgemeen);
-    _tekenModel.TekenBlokjesDiverseKleuren(_shader, _lader.EntiteitenAlgemeen);
+
+    //var deSchaal = new Vector3(32.0f);
+    var deSchaal = 32;
+    var verderZetten = new Vector3(0, -100, 0);
+    _tekenModel.Teken(_shader, DiverseHelpFuncties.startPos + verderZetten, deSchaal);
 
     // Volgens mij moet hier het doel van de entiteit bepaald worden
     // en dan gehaald uit het model "*2" of "*36" etc.

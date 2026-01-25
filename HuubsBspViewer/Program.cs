@@ -15,7 +15,7 @@ namespace HuubsBspViewer {
 
       Lader lader = new Lader();
 
-      lader.LaadBlockbenchModel(args[1]);
+      //lader.LaadBlockbenchModel(args[1]);
       lader.LaadBspBestand(args[0]);
 
       BspBuilder bspBouwer = new();

@@ -50,10 +50,10 @@ public static class DiverseHelpFuncties {
     Console.WriteLine("[HuubsBspViewer] Aantal entiteiten in map: " + lader.entiteiten.Count);
     // 2. Animaties ophalen
     //var animaties = model.LogicalAnimations.FirstOrDefault();
-    foreach(var animatie in lader.HetModel.LogicalAnimations) {
-      var naam = animatie.Name;
-      Console.WriteLine($"Animatie gevonden: {naam}");
-    }
+    //foreach(var animatie in lader.HetModel.LogicalAnimations) {
+    //  var naam = animatie.Name;
+    //  Console.WriteLine($"Animatie gevonden: {naam}");
+    //}
     // Gebruik animation.Animatible om de transformaties per frame te berekenen
 
 

@@ -41,7 +41,7 @@ public class Lader {
   // Voor Blockbench model laden
   public Vector3Array positions;
   public IntegerArray indices;
-  public ModelRoot HetModel;
+  //public ModelRoot HetModel;
   //================= Entiteiten ==========================
 
   public void LaadBspBestand(string pad) {
@@ -60,8 +60,6 @@ public class Lader {
       LeesTextureInfos(reader, DataBlokken[(int)DatablokTiepe.TexInfo]);
       LeesEntiteiten(reader, DataBlokken[(int)DatablokTiepe.Entities]);
       LeesModellen(reader, DataBlokken[(int)DatablokTiepe.Models]);
-
-      //ZoekTriggers();
 
       VerwerkEntiteiten();
       LeesShader();
@@ -476,22 +474,22 @@ public class Lader {
    * Proberen om een Blockbench model te laden via SharpGLTF.
    * en later weer te geven in OpenTK.
    */
-  public void LaadBlockbenchModel(string padNaarDeGltf) {
-    HetModel = ModelRoot.Load(padNaarDeGltf);
+  //public void LaadBlockbenchModel(string padNaarDeGltf) {
+  //  HetModel = ModelRoot.Load(padNaarDeGltf);
 
-    // 1. Loop door de meshes (de cubes uit Blockbench)
-    foreach(Mesh mesh in HetModel.LogicalMeshes) {
-      foreach(MeshPrimitive primitive in mesh.Primitives) {
-        // Haal de vertex posities op via de Accessor
-        Accessor accessor = primitive.GetVertexAccessor("POSITION");
+  //  // 1. Loop door de meshes (de cubes uit Blockbench)
+  //  foreach(Mesh mesh in HetModel.LogicalMeshes) {
+  //    foreach(MeshPrimitive primitive in mesh.Primitives) {
+  //      // Haal de vertex posities op via de Accessor
+  //      Accessor accessor = primitive.GetVertexAccessor("POSITION");
 
-        positions = (Vector3Array)accessor.AsVector3Array();
+  //      positions = (Vector3Array)accessor.AsVector3Array();
 
-        // Voor de indices (de volgorde van driehoeken tekenen)
-        IntegerArray indices = (IntegerArray)primitive.GetIndexAccessor().AsIndicesArray();
+  //      // Voor de indices (de volgorde van driehoeken tekenen)
+  //      IntegerArray indices = (IntegerArray)primitive.GetIndexAccessor().AsIndicesArray();
 
-        // Nu kun je deze data naar je eigen BufferObjects sturen
-      }
-    }
-  }
+  //      // Nu kun je deze data naar je eigen BufferObjects sturen
+  //    }
+  //  }
+  //}
 }

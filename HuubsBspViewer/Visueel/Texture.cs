@@ -3,7 +3,6 @@ using OpenTK.Graphics.OpenGL4;
 
 public class Texture {
   public int Handle;
-
   public Texture(string pad) {
     Handle = GL.GenTexture();
     Gebruik();
