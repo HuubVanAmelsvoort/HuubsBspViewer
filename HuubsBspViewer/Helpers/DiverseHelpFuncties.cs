@@ -36,6 +36,8 @@ public static class DiverseHelpFuncties {
   public static bool aIngedrukt;
   //========================= Einde Toetsen status ==============================
   public static Dictionary<string, (int breedte, int hoogte)> textureAfmetingen = new();
+  internal static string ModelPad;
+  internal static string BspPad;
 
   internal static void ConsoleLog(string tekst, Lader lader) {
     Console.WriteLine("[HuubsBspViewer] " + tekst);
@@ -152,6 +154,9 @@ public static class DiverseHelpFuncties {
   public static Vector3 KleurVanClassNaam(string classNaam) {
     Vector3 kleurLijn;
     switch(classNaam) {
+      case "huub":
+        kleurLijn = new Vector3(1f, 1f, 0.5f); // 
+        break;
       case "ammo_bullets":
       case "ammo_grenades":
       case "ammo_rockets":
@@ -227,6 +232,77 @@ public static class DiverseHelpFuncties {
       case "trigger_push":
         kleurLijn = new Vector3(1, 0, 1); // Magenta
         break;
+      case "trigger_key":
+        kleurLijn = new Vector3(1, 0, 1); // Magenta
+        break;
+      case "trigger_counter":
+        kleurLijn = new Vector3(1, 0, 1); // Magenta
+        break;
+      case "trigger_hurt":
+        kleurLijn = new Vector3(1, 0, 1); // Magenta
+        break;
+      case "func_water":
+        kleurLijn = new Vector3(1, 0, 1); // Magenta
+        break;
+      case "item_adrenaline":
+        kleurLijn = new Vector3(1, 0, 1); // Magenta
+        break;
+      case "item_health_mega":
+        kleurLijn = new Vector3(1, 0, 1); // Magenta
+        break;
+      case "item_power_shield":
+        kleurLijn = new Vector3(1, 0, 1); // Magenta
+        break;
+      case "item_silencer":
+        kleurLijn = new Vector3(1, 0, 1); // Magenta
+        break;
+      case "misc_teleporter":
+        kleurLijn = new Vector3(1, 0, 1); // Magenta
+        break;
+      case "misc_teleporter_dest":
+        kleurLijn = new Vector3(1, 0, 1); // Magenta
+        break;
+      case "weapon_hyperblaster":
+        kleurLijn = new Vector3(1, 0, 1); // Magenta
+        break;
+      case "info_null":
+        kleurLijn = new Vector3(1, 0, 1); // Magenta
+        break;
+      case "info_notnull":
+        kleurLijn = new Vector3(1, 0, 1); // Magenta
+        break;
+      case "item_armor_body":
+        kleurLijn = new Vector3(1, 0, 1); // Magenta
+        break;
+      case "monster_berserk":
+        kleurLijn = new Vector3(1, 0, 1); // Magenta
+        break;
+      case "monster_supertank":
+        kleurLijn = new Vector3(1, 0, 1); // Magenta
+        break;
+      case "monster_tank":
+        kleurLijn = new Vector3(1, 0, 1); // Magenta
+        break;
+      case "target_splash":
+        kleurLijn = new Vector3(1, 0, 1); // Magenta
+        break;
+      case "item_pack":
+        kleurLijn = new Vector3(1, 0, 1); // Magenta
+        break;
+      case "misc_viper":
+        kleurLijn = new Vector3(1, 0, 1); // Magenta
+        break;
+      case "monster_boss3_stand":
+        kleurLijn = new Vector3(1, 0, 1); // Magenta
+        break;
+      case "monster_chick":
+        kleurLijn = new Vector3(1, 0, 1); // Magenta
+        break;
+      case "target_temp_entity":
+        kleurLijn = new Vector3(1, 0, 1); // Magenta
+        break;
+
+
       case "ammo_cells":
         kleurLijn = new Vector3(1, 0, 1); // Magenta
         break;
@@ -258,6 +334,15 @@ public static class DiverseHelpFuncties {
         kleurLijn = new Vector3(1, 0, 1); // Magenta
         break;
       case "weapon_bfg":
+        kleurLijn = new Vector3(1, 0, 1); // Magenta
+        break;
+      case "misc_strogg_ship":
+        kleurLijn = new Vector3(1, 0, 1); // Magenta
+        break;
+      case "misc_banner":
+        kleurLijn = new Vector3(1, 0, 1); // Magenta
+        break;
+      case "monster_soldier":
         kleurLijn = new Vector3(1, 0, 1); // Magenta
         break;
       default:
@@ -294,6 +379,41 @@ public static class DiverseHelpFuncties {
       } else {
         // Fallback als het plaatje ontbreekt (voorkom delen door nul!)
         textureAfmetingen[naam] = (128, 128);
+      }
+    }
+  }
+
+  internal static string Dialoog(string soortBestand) {
+
+    using (OpenFileDialog openFileDialog = new OpenFileDialog()) {
+      switch(soortBestand) {
+        case "bsp":
+          openFileDialog.Title = "Selecteer een Quake 2 BSP bestand";
+          openFileDialog.InitialDirectory = "c:\\werkdirectory\\speldata\\quake2\\baseq2\\maps";
+          openFileDialog.Filter = $"Quake 2 levels (*.{soortBestand})|*.{soortBestand}|All files (*.*)|*.*";
+          break;
+        case "glft":
+          openFileDialog.Title = "Selecteer een Model bestand";
+          openFileDialog.InitialDirectory = "c:\\werkdirectory\\BlockbenchBestanden";
+          openFileDialog.Filter = $"Model  (*.{soortBestand})|*.{soortBestand}|All files (*.*)|*.*";
+          break;
+        default:
+          openFileDialog.Title = "Selecteer een bestand";
+          openFileDialog.InitialDirectory = "c:\\werkdirectory";
+          openFileDialog.Filter = $"Quake 2 levels (*.{soortBestand})|*.{soortBestand}|All files (*.*)|*.*";
+          break;
+      }
+      //C:\werkdirectory\speldata\quake2\baseq2\textures\e1u1
+      openFileDialog.FilterIndex = 1;
+      openFileDialog.RestoreDirectory = true;
+
+      // 2. Toon de dialoog en check of de gebruiker op 'OK' heeft geklikt
+      if (openFileDialog.ShowDialog() == DialogResult.OK) {
+        return openFileDialog.FileName;
+      } else {
+        Console.WriteLine("Geen bestand geselecteerd. Programma sluit.");
+        Environment.Exit(-1);
+        return null; // Deze regel zal nooit bereikt worden, maar is nodig om te compileren
       }
     }
   }

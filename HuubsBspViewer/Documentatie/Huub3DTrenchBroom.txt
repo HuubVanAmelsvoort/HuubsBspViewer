@@ -1,14 +1,29 @@
-﻿Na lang zoeken een bsp naar map gevonden die goed werkt met TrenchBroom.
+﻿=========================================================================================================
+Na lang zoeken een bsp naar map gevonden die goed werkt met TrenchBroom.
 https://github.com/wfowler1/bsp-decompiler
 Deze tool converteert BSP bestanden naar .map bestanden die TrenchBroom kan openen en bewerken.
-
+=========================================================================================================
 TrenchBroom is een open-source level editor voor Quake-engine gebaseerde games.
 Een eigen Huub3d map maken kan met deze editor.
-
 .\TrenchBroom-Win64-v2024.1 heeft een game map. Zie verder project aanvullingentrenchbroom.
-
+=========================================================================================================
 Voor het verwerken van pcx naar png kan IrfanView gebruikt worden.
 IrfanView is een gratis beeldviewer en -converter die veel bestandsformaten ondersteunt, waaronder pcx en png.
 Je moet nog wel een plugin installeren om pcx bestanden te kunnen openen.
 https://www.irfanview.com/plugins.htm
 Download en installeer IrfanView en de benodigde plugins.
+https://dappcdn.com/download/graphic-apps/irfanview?get=iview473_plugins_x64_setup.exe
+=========================================================================================================
+Voor het uitpakken van bsp bestanden kan ook BSPTwoMAP gebruikt worden.
+Uitpakken van .pak bestanden kan met PakScape.
+=========================================================================================================
+de .wal bestanden kunnen geconverteerd worden naar .png met Wally.
+https://valvedev.info/tools/wally/
+batch met: https://github.com/APAmk2/wal2png.git
+project aanmake in c++
+let op 
+wel even de instellingen goed zetten voor de output map.
+Console (/SUBSYSTEM:CONSOLE) in Linker settings.
+ISO C++17 Standard (/std:c++17) in General.
+=========================================================================================================
+

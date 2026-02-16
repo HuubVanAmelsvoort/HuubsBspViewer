@@ -1,22 +1,32 @@
 ﻿using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
-using OpenTK.Windowing.GraphicsLibraryFramework;
+
 /**
  * Met behulp van Gemini AI (https://www.gemini.com/) gegenereerde code.
  */
 namespace HuubsBspViewer {
   internal class Program {
+    [STAThread]
     static void Main(string[] args) {
-      if (args.Length < 1) {
-        Console.WriteLine("Gebruik: HuubsBspViewer <pad_naar_bsp_bestand>");
+
+      if (args.Length < 2) {
+        Console.WriteLine("Gebruik: HuubsBspViewer <pad_naar_bsp_bestand> <model>");
         return;
       }
+      DiverseHelpFuncties.BspPad = args[0];
+      DiverseHelpFuncties.ModelPad = args[1];
 
+      DiverseHelpFuncties.basispadQuake2 = Path.GetDirectoryName(args[0])
+          + Path.DirectorySeparatorChar
+      + ".."
+          + Path.DirectorySeparatorChar;
       Lader lader = new Lader();
 
-      //lader.LaadBlockbenchModel(args[1]);
-      lader.LaadBspBestand(args[0]);
+      DiverseHelpFuncties.BspPad = DiverseHelpFuncties.Dialoog("bsp");
+      DiverseHelpFuncties.ModelPad = DiverseHelpFuncties.Dialoog("gltf");
+
+      lader.LaadBspBestand(DiverseHelpFuncties.BspPad);
 
       BspBuilder bspBouwer = new();
       List<TextureGroep> driehoeken = bspBouwer.GenereerDriehoeken(lader, DiverseHelpFuncties.textureAfmetingen);
@@ -34,7 +44,7 @@ namespace HuubsBspViewer {
 
       nativeWindowSettings.Location = new Vector2i(50, 50);
 
-      using(Venster venster = new Venster(
+      using (Venster venster = new Venster(
         gameWindowSettings
       , nativeWindowSettings
       , lader

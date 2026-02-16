@@ -1,99 +1,151 @@
-﻿//using OpenTK.Graphics.OpenGL;
-//using SharpGLTF.Runtime;
-//using TK = OpenTK.Mathematics;
-//using SN = System.Numerics;
-//public class TekenGltfModel {
-//  private readonly int _vao;
-//  private readonly int _vbo;
-//  private readonly int _vertexCount;
-//  //private readonly int _sneeuwpopTextureHandle;
-//  public TekenGltfModel(string pad) {
-//    var model = SharpGLTF.Schema2.ModelRoot.Load(pad);
-//    var scene = model.DefaultScene;
-//    var instance = SharpGLTF.Runtime. RuntimeModelLayer.CreateSceneInstance(scene);
-//    List<float> vertexData = new List<float>();
+﻿using OpenTK.Graphics.OpenGL4;
+using SharpGLTF.Memory;
+using System.Numerics;
+using GLTF = SharpGLTF.Schema2;
+using S = System.Numerics;
+using TK = OpenTK.Mathematics;
 
-//    foreach(var mesh in model.LogicalMeshes) {
-//      foreach(var primitive in mesh.Primitives) {
-//        // Haal posities op
-//        var positions = primitive.GetVertexAccessor("POSITION").AsVector3Array();
-//        var uvAccessor = primitive.GetVertexAccessor("TEXCOORD_0").AsVector2Array();
-//        //var indices = primitive.GetIndexAccessor().AsIndicesArray();
+public class GltfMeshOnderdeel {
+  public int Vao;
+  public int VertexCount;
+  public GLTF.Node TargetNode;
+  public Texture TargetTexture;
+}
 
-//        // Als je model indices gebruikt (meestal wel bij glTF)
-//        if(primitive.IndexAccessor != null) {
-//          var indices = primitive.GetIndexAccessor().AsIndicesArray();
-//          foreach(var idx in indices) {
-//            var pos = ToTK(positions[(int)idx]);
-//            vertexData.Add(pos.X);
-//            vertexData.Add(pos.Y);
-//            vertexData.Add(pos.Z);
+public class TekenGltfModel {
+  private GLTF.ModelRoot _model;
+  private List<GltfMeshOnderdeel> _GltfMeshOnderdeelOnderdelen = new List<GltfMeshOnderdeel>();
 
-//            // UV coördinaten
-//            var uv = uvAccessor[(int)idx];
-//            vertexData.Add(uv.X);
-//            vertexData.Add(1.0f - uv.Y); // glTF is top-left, OpenGL is bottom-left
-//            //vertexData.Add(uv.Y); // glTF is top-left, OpenGL is bottom-left
-//          } // eind foreach indices
-//        } else {
-//          // Geen indices, gewoon vertices achter elkaar
-//          foreach(var posNum in positions) {
-//            var pos = ToTK(posNum);
-//            vertexData.Add(pos.X);
-//            vertexData.Add(pos.Y);
-//            vertexData.Add(pos.Z);
-//          }
-//        }
-//      }
-//    }
+  public TekenGltfModel(string modelPad) {
+    Console.WriteLine($"Het volgende model wordt geladen: {modelPad}");
+    _model = GLTF.ModelRoot.Load(modelPad);
+    ControleerPlaatjes();
+    VoorbereidenGaasNetWerk();
+  }
+  /**
+   * Voorlopige controle, maar kan later weg.
+   */
+  private void ControleerPlaatjes() {
+    foreach (var image in _model.LogicalImages) {
+      // Print de naam of bron van de afbeelding naar je console
+      Console.WriteLine($"Afbeelding gevonden: {image.Name ?? "Naamloos"}");
 
-//    _vertexCount = vertexData.Count / 3;
-//    float[] vertices = vertexData.ToArray();
+      // Controleer of er daadwerkelijk data aanwezig is
+      var data = image.Content.Content.ToArray();
+      if (data.Length > 0) {
+        Console.WriteLine($"- Data geladen: {data.Length} bytes");
+      } else {
+        Console.WriteLine("- WAARSCHUWING: Geen data gevonden voor deze afbeelding!");
+      }
+    }
+  }
 
-//    int stride = 5 * sizeof(float);
+  private void VoorbereidenGaasNetWerk() {
+    foreach (GLTF.Node node in _model.LogicalNodes) {
+      if (node.Mesh == null) continue;
 
-//    _vao = GL.GenVertexArray();
-//    _vbo = GL.GenBuffer();
+      foreach (GLTF.MeshPrimitive primitief in node.Mesh.Primitives) {
+        Vector3Array accessoirePositie = (Vector3Array)primitief.GetVertexAccessor("POSITION").AsVector3Array();
+        Vector2Array accessoireUv = (Vector2Array)primitief.GetVertexAccessor("TEXCOORD_0").AsVector2Array();       
+        IntegerArray indexen = (IntegerArray)primitief.GetIndexAccessor().AsIndicesArray();
 
-//    GL.BindVertexArray(_vao);
-//    GL.BindBuffer(BufferTarget.ArrayBuffer, _vbo);
-//    GL.BufferData(BufferTarget.ArrayBuffer, vertices.Length * sizeof(float), vertices, BufferUsageHint.StaticDraw);
+        List<float> vertexData = new List<float>();
+        foreach (uint deIndex in indexen) {
+          // We pakken hier de RAW posities (X, Y, Z) uit de glTF
+          S.Vector3 positie = accessoirePositie[(int)deIndex];
+          S.Vector2 plaatje = accessoireUv[(int)deIndex];
 
-//    GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, stride, 0);
-//    GL.EnableVertexAttribArray(0);
+          vertexData.Add(positie.X);
+          vertexData.Add(1.0f - positie.Y);
+          vertexData.Add(positie.Z);
 
-//    // Locatie 1: UV (2 floats)
-//    // De '3 * sizeof(float)' is de offset: de UV's beginnen na de X,Y,Z
-//    GL.VertexAttribPointer(1, 2, VertexAttribPointerType.Float, false, stride, 3 * sizeof(float));
-//    GL.EnableVertexAttribArray(1);
-//  }
+          vertexData.Add(plaatje.X);
+          vertexData.Add(1.0f - plaatje.Y); // Flip UV voor OpenGL
+        }
 
-//  private TK.Vector3 ToTK(SN.Vector3 v) {
-//    // eerst kijken of het wel nodig is om te converteren
-//    TK.Vector3 posNum = new TK.Vector3(v.X, v.Z, v.Y); // Direct je Quake-fix toegepast!
-//    //TK.Vector3 posNum = new TK.Vector3(v.X, v.Y, v.Z); 
+        // GL BUFFER LOGICA
+        int stride = 5 * sizeof(float);
+        int vao = GL.GenVertexArray();
+        int vbo = GL.GenBuffer();
 
-//    return posNum;
-//  }
+        GL.BindVertexArray(vao);
+        GL.BindBuffer(BufferTarget.ArrayBuffer, vbo);
+        GL.BufferData(BufferTarget.ArrayBuffer, vertexData.Count * sizeof(float), vertexData.ToArray(), BufferUsageHint.StaticDraw);
 
-//  public void Teken(AlgemeneShader shader, TK.Vector3 positie, TK.Vector3 schaal) {
-//    shader.Gebruiken();
+        // Locatie 0: Positie (X, Y, Z)
+        GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, stride, 0);
+        GL.EnableVertexAttribArray(0);
 
-//    GL.ActiveTexture(TextureUnit.Texture0);
-//    Texture texture = new Texture(@"D:\\werkdirectory\\BlockbenchBestanden\\VolledigeSneeuwpop.png");
-//    texture.Gebruik();
+        // Locatie 1: UV (U, V) - begint na 3 floats
+        GL.VertexAttribPointer(1, 2, VertexAttribPointerType.Float, false, stride, 3 * sizeof(float));
+        GL.EnableVertexAttribArray(1);
 
-//    GL.BindTexture(TextureTarget.Texture2D, texture.Handle);
-//    // Zorg dat je shader een sampler2D uniform heeft voor de texture
+        _GltfMeshOnderdeelOnderdelen.Add(new GltfMeshOnderdeel {
+          Vao = vao,
+          VertexCount = vertexData.Count / 5, // We delen door 5 omdat we X,Y,Z,U,V hebben
+          TargetNode = node
+        });
+      }
+    }
+  }
+  public void Teken(AlgemeneShader shader, TK.Vector3 wereldPositie, float schaal) {
+    shader.Gebruiken();
+    TK.Vector4 kleur;
 
-//    // Matrix maken: Positie * Schaal (Blockbench modellen zijn vaak klein, dus schaal ze evt. op)
-//    TK.Matrix4 model = TK.Matrix4.CreateScale(schaal) * TK.Matrix4.CreateTranslation(positie);
-//    shader.SetMatrix4("model", model);
+    int isMarker = GL.GetUniformLocation(shader.Handle, "isMarker");
+    int markerKleur = GL.GetUniformLocation(shader.Handle, "markerKleur");
 
-//    GL.BindVertexArray(_vao);
-//    GL.DrawArrays(PrimitiveType.Triangles, 0, _vertexCount);
+    GL.Uniform1(GL.GetUniformLocation(shader.Handle, "isMarker"), 0);
 
-//  }
-//}
-//using OpenTK.Graphics.OpenGL;
-//using SharpGLTF.Runtime;
+    GL.Uniform1(isMarker, 0); // zet de marker modus aan in de shader
+
+    TK.Vector3 kleur3 = DiverseHelpFuncties.KleurVanClassNaam("huub");
+    kleur = new TK.Vector4(kleur3, 1.0f);
+
+    foreach (GltfMeshOnderdeel gltfMeshOnderdeel in _GltfMeshOnderdeelOnderdelen) {
+      // Bereken hiërarchie (voor de neus, armen etc.)
+      S.Matrix4x4 resultMatrix = GeefDeWereldMatrix(gltfMeshOnderdeel.TargetNode);
+      TK.Matrix4 localMatrix = ConverteerMatrix(resultMatrix);
+
+      // De Quake-as swap passen we nu pas toe op de uiteindelijke matrix
+      // We zetten de glTF (Y-up) om naar Quake (Z-up)
+      TK.Matrix4 quakeFix = TK.Matrix4.CreateRotationX(TK.MathHelper.DegreesToRadians(-90));
+
+      TK.Matrix4 worldMatrix = localMatrix * TK.Matrix4.CreateScale(schaal) * quakeFix * TK.Matrix4.CreateTranslation(wereldPositie);
+      GL.ActiveTexture(TextureUnit.Texture0);
+      Texture texture = new Texture(@"C:\werkdirectory\BlockbenchBestanden\SneeuwPopHuub\VolledigeSneeuwpop.png");
+      texture.Gebruik();
+
+      //GL.BindTexture(TextureTarget.Texture2D, texture.Handle);
+      GL.ActiveTexture(TextureUnit.Texture0);
+      GL.BindTexture(TextureTarget.Texture2D, texture.Handle);
+      shader.SetInt("uTexture", 0); // Vertel de shader dat hij unit 0 moet gebruiken
+
+      shader.SetMatrix4("model", worldMatrix);
+
+      GL.BindVertexArray(gltfMeshOnderdeel.Vao);
+      GL.DrawArrays(OpenTK.Graphics.OpenGL4.PrimitiveType.Triangles, 0, gltfMeshOnderdeel.VertexCount);
+    }
+
+    GL.Uniform1(isMarker, 0); // zet de marker modus uit in de shader
+
+  }
+
+  private S.Matrix4x4 GeefDeWereldMatrix(GLTF.Node node) {
+    var matrix = node.LocalMatrix;
+    var parent = node.VisualParent;
+
+    while (parent != null) {
+      matrix = matrix * parent.LocalMatrix;
+      parent = parent.VisualParent;
+    }
+    return matrix;
+  }
+  private TK.Matrix4 ConverteerMatrix(S.Matrix4x4 m) {
+    return new TK.Matrix4(
+        m.M11, m.M12, m.M13, m.M14,
+        m.M21, m.M22, m.M23, m.M24,
+        m.M31, m.M32, m.M33, m.M34,
+        m.M41, m.M42, m.M43, m.M44);
+  }
+}

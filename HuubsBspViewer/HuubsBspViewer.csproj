@@ -1,63 +1,64 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <TargetFramework>net9.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-    <AllowUnsafeBlocks>False</AllowUnsafeBlocks>
-  </PropertyGroup>
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<TargetFramework>net9.0-windows</TargetFramework>
+		<UseWindowsForms>true</UseWindowsForms>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<AllowUnsafeBlocks>False</AllowUnsafeBlocks>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <Compile Remove="Shaders\lucht.frag.cs" />
-    <Compile Remove="Shaders\lucht.vert.cs" />
-    <Compile Remove="Shaders\shader.frag.cs" />
-    <Compile Remove="Shaders\shader.vert.cs" />
-  </ItemGroup>
+	<ItemGroup>
+		<Compile Remove="Shaders\lucht.frag.cs" />
+		<Compile Remove="Shaders\lucht.vert.cs" />
+		<Compile Remove="Shaders\shader.frag.cs" />
+		<Compile Remove="Shaders\shader.vert.cs" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <None Include="Helpers\DiverseHelpFuncties.cs" />
-    <None Include="Shaders\lucht.frag.cs">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Shaders\lucht.vert.cs">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Shaders\shader.frag.cs">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Shaders\shader.vert.cs">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
+	<ItemGroup>
+		<None Include="Helpers\DiverseHelpFuncties.cs" />
+		<None Include="Shaders\lucht.frag.cs">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Include="Shaders\lucht.vert.cs">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Include="Shaders\shader.frag.cs">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Include="Shaders\shader.vert.cs">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="OpenTK" Version="4.9.4" />
-    <PackageReference Include="SharpGLTF.Core" Version="1.0.6" />
-    <PackageReference Include="SharpGLTF.Runtime" Version="1.0.6" />
-    <PackageReference Include="SharpGLTF.Toolkit" Version="1.0.6" />
-    <PackageReference Include="StbImageSharp" Version="2.30.15" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="OpenTK" Version="4.9.4" />
+		<PackageReference Include="SharpGLTF.Core" Version="1.0.6" />
+		<PackageReference Include="SharpGLTF.Runtime" Version="1.0.6" />
+		<PackageReference Include="SharpGLTF.Toolkit" Version="1.0.6" />
+		<PackageReference Include="StbImageSharp" Version="2.30.15" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <Compile Update="Properties\Resources.Designer.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
-  </ItemGroup>
+	<ItemGroup>
+		<Compile Update="Properties\Resources.Designer.cs">
+			<DesignTime>True</DesignTime>
+			<AutoGen>True</AutoGen>
+			<DependentUpon>Resources.resx</DependentUpon>
+		</Compile>
+	</ItemGroup>
 
-  <ItemGroup>
-    <EmbeddedResource Update="Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-  </ItemGroup>
+	<ItemGroup>
+		<EmbeddedResource Update="Properties\Resources.resx">
+			<Generator>ResXFileCodeGenerator</Generator>
+			<LastGenOutput>Resources.Designer.cs</LastGenOutput>
+		</EmbeddedResource>
+	</ItemGroup>
 
-  <ItemGroup>
-    <None Update="Quake2.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
+	<ItemGroup>
+		<None Update="Quake2.png">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
 
 </Project>

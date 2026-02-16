@@ -2,7 +2,7 @@
   "profiles": {
     "HuubsBspViewer": {
       "commandName": "Project",
-      "commandLineArgs": "D:\\werkdirectory\\SpelData\\baseq2uitgepakt\\baseq2\\maps\\biggun.bsp D:\\werkdirectory\\BlockbenchBestanden\\Sneeuwpop.gltf"
+      "commandLineArgs": "C:\\werkdirectory\\speldata\\quake2\\baseq2\\maps\\biggun.bsp c:\\werkdirectory\\BlockbenchBestanden\\sub\\divers.gltf"
     }
   }
 }

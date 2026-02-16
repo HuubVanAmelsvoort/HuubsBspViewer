@@ -3,7 +3,7 @@ using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
-using OpenTK.Windowing.GraphicsLibraryFramework;
+using GR = OpenTK.Windowing.GraphicsLibraryFramework;
 public class Venster : GameWindow {
   private TekenLevel _tekenLevel;
 
@@ -114,8 +114,7 @@ public class Venster : GameWindow {
     _tekenBlokjes = new();
     _tekenLijnBlokken = new(_shader);
 
-    string pad = $"D:/werkdirectory/BlockbenchBestanden/Sneeuwpop.gltf";
-    _tekenModel = new(pad);
+    _tekenModel = new(DiverseHelpFuncties.ModelPad);
   }
 
   /**
@@ -171,8 +170,8 @@ public class Venster : GameWindow {
 
     _tekenLevel.TekenenVanHetLevel(_texturesTabel, _shader);
 
-    _tekenLijnBlokken.TekenLijnBlokjes(_shader, _lader.EntiteitenAlgemeen, _camera);
-    //_tekenBlokjes.TekenBlokjesDiverseKleuren(_shader, _lader.EntiteitenAlgemeen);
+    //_tekenLijnBlokken.TekenLijnBlokjes(_shader, _lader.EntiteitenAlgemeen, _camera);
+    _tekenBlokjes.TekenBlokjesDiverseKleuren(_shader, _lader.EntiteitenAlgemeen);
 
     //var deSchaal = new Vector3(32.0f);
     var deSchaal = 32;
@@ -280,25 +279,25 @@ public class Venster : GameWindow {
   protected override void OnKeyDown(KeyboardKeyEventArgs e) {
     //Console.WriteLine("Key down: " + e.Key.ToString());
 
-    if(e.Key == Keys.Escape) Close();
+    if(e.Key == GR.Keys.Escape) Close();
 
     // 'N' ingedrukt voor noclip wisselen
-    if(e.Key == Keys.N) {
+    if(e.Key == GR.Keys.N) {
       noclip = !noclip;
     }
 
-    if(e.Key == Keys.W) DiverseHelpFuncties.wIngedrukt = true;
-    if(e.Key == Keys.S) DiverseHelpFuncties.sIngedrukt = true;
-    if(e.Key == Keys.D) DiverseHelpFuncties.dIngedrukt = true;
-    if(e.Key == Keys.A) DiverseHelpFuncties.aIngedrukt = true;
+    if(e.Key == GR.Keys.W) DiverseHelpFuncties.wIngedrukt = true;
+    if(e.Key == GR.Keys.S) DiverseHelpFuncties.sIngedrukt = true;
+    if(e.Key == GR.Keys.D) DiverseHelpFuncties.dIngedrukt = true;
+    if(e.Key == GR.Keys.A) DiverseHelpFuncties.aIngedrukt = true;
   }
   protected override void OnKeyUp(KeyboardKeyEventArgs e) {
     //Console.WriteLine("Key up: " + e.Key.ToString());
 
-    if(e.Key == Keys.W) DiverseHelpFuncties.wIngedrukt = false;
-    if(e.Key == Keys.S) DiverseHelpFuncties.sIngedrukt = false;
-    if(e.Key == Keys.D) DiverseHelpFuncties.dIngedrukt = false;
-    if(e.Key == Keys.A) DiverseHelpFuncties.aIngedrukt = false;
+    if(e.Key == GR.Keys.W) DiverseHelpFuncties.wIngedrukt = false;
+    if(e.Key == GR.Keys.S) DiverseHelpFuncties.sIngedrukt = false;
+    if(e.Key == GR.Keys.D) DiverseHelpFuncties.dIngedrukt = false;
+    if(e.Key == GR.Keys.A) DiverseHelpFuncties.aIngedrukt = false;
 
     DiverseHelpFuncties.beweging = Vector3.Zero;
   }

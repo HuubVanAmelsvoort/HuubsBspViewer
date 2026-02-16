@@ -130,7 +130,7 @@ public class TekenLijnBlokken {
     GL.Uniform1(GL.GetUniformLocation(_shader.Handle, "isMarker"), 0);
 
     // 5. Tekenen
-    GL.LineWidth(2.0f);
+    GL.LineWidth(1.0f);
     //GL.Disable(EnableCap.DepthTest); // X-Ray om ze sowieso te vinden
     GL.DrawArrays(PrimitiveType.Lines, 0, 24);
     //GL.Enable(EnableCap.DepthTest);
