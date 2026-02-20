@@ -171,12 +171,14 @@ public class Venster : GameWindow {
     _tekenLevel.TekenenVanHetLevel(_texturesTabel, _shader);
 
     //_tekenLijnBlokken.TekenLijnBlokjes(_shader, _lader.EntiteitenAlgemeen, _camera);
-    _tekenBlokjes.TekenBlokjesDiverseKleuren(_shader, _lader.EntiteitenAlgemeen);
+    //_tekenBlokjes.TekenBlokjesDiverseKleuren(_shader, _lader.EntiteitenAlgemeen);
 
     //var deSchaal = new Vector3(32.0f);
     var deSchaal = 32;
     var verderZetten = new Vector3(0, -100, 0);
     _tekenModel.Teken(_shader, DiverseHelpFuncties.startPos + verderZetten, deSchaal);
+    
+    _tekenBlokjes.TekenModel(_shader, _lader.EntiteitenAlgemeen, _tekenModel);
 
     // Volgens mij moet hier het doel van de entiteit bepaald worden
     // en dan gehaald uit het model "*2" of "*36" etc.
@@ -411,6 +413,10 @@ public class Venster : GameWindow {
       case "ammo_bullets":
       case "info_player_coop":
       case "info_player_deathmatch":
+      case "trigger_push":
+      case "trigger_hurt":
+      case "trigger_relay":
+        break;
       case "target_help":
         if(!string.IsNullOrEmpty(entiteitAlgemeenDoel.Boodschap)) {
           ToonBericht(entiteitAlgemeenDoel.Boodschap);

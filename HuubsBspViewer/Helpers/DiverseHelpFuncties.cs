@@ -345,6 +345,18 @@ public static class DiverseHelpFuncties {
       case "monster_soldier":
         kleurLijn = new Vector3(1, 0, 1); // Magenta
         break;
+      case "item_bandolier":
+        kleurLijn = new Vector3(1, 0, 1); // Magenta
+        break;
+      case "monster_floater":
+        kleurLijn = new Vector3(1, 0, 1); // Magenta
+        break;
+      case "monster_hover":
+        kleurLijn = new Vector3(1, 0, 1); // Magenta
+        break;
+      case "target_crosslevel_trigger":
+        kleurLijn = new Vector3(1, 0, 1); // Magenta
+        break;
       default:
         kleurLijn = new Vector3(0, 1, 1); // Cyaan
         Console.WriteLine($"Default in trigger: {classNaam}");
@@ -392,9 +404,9 @@ public static class DiverseHelpFuncties {
           openFileDialog.InitialDirectory = "c:\\werkdirectory\\speldata\\quake2\\baseq2\\maps";
           openFileDialog.Filter = $"Quake 2 levels (*.{soortBestand})|*.{soortBestand}|All files (*.*)|*.*";
           break;
-        case "glft":
+        case "gltf":
           openFileDialog.Title = "Selecteer een Model bestand";
-          openFileDialog.InitialDirectory = "c:\\werkdirectory\\BlockbenchBestanden";
+          openFileDialog.InitialDirectory = "C:\\werkdirectory\\BlockbenchBestanden";
           openFileDialog.Filter = $"Model  (*.{soortBestand})|*.{soortBestand}|All files (*.*)|*.*";
           break;
         default:

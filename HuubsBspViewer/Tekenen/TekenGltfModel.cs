@@ -15,9 +15,11 @@ public class GltfMeshOnderdeel {
 public class TekenGltfModel {
   private GLTF.ModelRoot _model;
   private List<GltfMeshOnderdeel> _GltfMeshOnderdeelOnderdelen = new List<GltfMeshOnderdeel>();
+  private Texture _hoofdTexture; // Voeg dit toe bovenaan de klasse
 
   public TekenGltfModel(string modelPad) {
     Console.WriteLine($"Het volgende model wordt geladen: {modelPad}");
+
     _model = GLTF.ModelRoot.Load(modelPad);
     ControleerPlaatjes();
     VoorbereidenGaasNetWerk();
@@ -26,13 +28,13 @@ public class TekenGltfModel {
    * Voorlopige controle, maar kan later weg.
    */
   private void ControleerPlaatjes() {
-    foreach (var image in _model.LogicalImages) {
+    foreach(var image in _model.LogicalImages) {
       // Print de naam of bron van de afbeelding naar je console
       Console.WriteLine($"Afbeelding gevonden: {image.Name ?? "Naamloos"}");
 
       // Controleer of er daadwerkelijk data aanwezig is
       var data = image.Content.Content.ToArray();
-      if (data.Length > 0) {
+      if(data.Length > 0) {
         Console.WriteLine($"- Data geladen: {data.Length} bytes");
       } else {
         Console.WriteLine("- WAARSCHUWING: Geen data gevonden voor deze afbeelding!");
@@ -40,23 +42,80 @@ public class TekenGltfModel {
     }
   }
 
-  private void VoorbereidenGaasNetWerk() {
-    foreach (GLTF.Node node in _model.LogicalNodes) {
-      if (node.Mesh == null) continue;
+  private S.Matrix4x4 GeefDeWereldMatrix(GLTF.Node node) {
+    var matrix = node.LocalMatrix;
+    var parent = node.VisualParent;
 
-      foreach (GLTF.MeshPrimitive primitief in node.Mesh.Primitives) {
+    while(parent != null) {
+      matrix = matrix * parent.LocalMatrix;
+      parent = parent.VisualParent;
+    }
+    return matrix;
+  }
+  private TK.Matrix4 ConverteerMatrix(S.Matrix4x4 m) {
+    return new TK.Matrix4(
+        m.M11, m.M12, m.M13, m.M14,
+        m.M21, m.M22, m.M23, m.M24,
+        m.M31, m.M32, m.M33, m.M34,
+        m.M41, m.M42, m.M43, m.M44);
+  }
+  public void Teken(AlgemeneShader shader, TK.Vector3 wereldPositie, float schaal) {
+    shader.Gebruiken();
+
+    int isMarker = GL.GetUniformLocation(shader.Handle, "isMarker");
+    GL.Uniform1(isMarker, 0); // Zorg dat we textures gebruiken, geen marker-kleur
+
+    foreach(GltfMeshOnderdeel gltfMeshOnderdeel in _GltfMeshOnderdeelOnderdelen) {
+      S.Matrix4x4 resultMatrix = GeefDeWereldMatrix(gltfMeshOnderdeel.TargetNode);
+      TK.Matrix4 localMatrix = ConverteerMatrix(resultMatrix);
+
+      // De "Rechtopzetter": glTF (Y-up) naar Quake (Z-up).
+      // Gebruik -90 graden als hij nog op zijn kop staat.
+      TK.Matrix4 quakeFix = TK.Matrix4.CreateRotationX(TK.MathHelper.DegreesToRadians(90));
+
+      // Volgorde: Hiërarchie -> Draaien -> Schalen -> Verplaatsen
+      TK.Matrix4 worldMatrix = localMatrix * quakeFix * TK.Matrix4.CreateScale(schaal) * TK.Matrix4.CreateTranslation(wereldPositie);
+      shader.SetMatrix4("model", worldMatrix);
+
+      // CRUCIAAL: Bind de specifieke texture voor dit onderdeel (mond, ogen, etc.)
+      if(gltfMeshOnderdeel.TargetTexture != null) {
+        GL.ActiveTexture(TextureUnit.Texture0);
+        gltfMeshOnderdeel.TargetTexture.Gebruik();
+        shader.SetInt("uTexture", 0);
+      }
+
+      GL.BindVertexArray(gltfMeshOnderdeel.Vao);
+      GL.DrawArrays(OpenTK.Graphics.OpenGL4.PrimitiveType.Triangles, 0, gltfMeshOnderdeel.VertexCount);
+    }
+  }
+
+  private Texture LaadTextureUitGltf(GLTF.Image gltfImage) {
+    // Haal de ruwe bytes op uit de glTF data
+    byte[] imageData = gltfImage.Content.Content.ToArray();
+
+    // Hier maken we gebruik van je bestaande Texture klasse.
+    // Zorg dat je Texture klasse een constructor heeft die een byte[] of Stream accepteert.
+    // Als je die niet hebt, kun je de data tijdelijk opslaan of je Texture klasse uitbreiden.
+    return new Texture(imageData);
+  }
+
+  private void VoorbereidenGaasNetWerk() {
+    foreach(GLTF.Node node in _model.LogicalNodes) {
+      if(node.Mesh == null) continue;
+
+      foreach(GLTF.MeshPrimitive primitief in node.Mesh.Primitives) {
         Vector3Array accessoirePositie = (Vector3Array)primitief.GetVertexAccessor("POSITION").AsVector3Array();
-        Vector2Array accessoireUv = (Vector2Array)primitief.GetVertexAccessor("TEXCOORD_0").AsVector2Array();       
+        Vector2Array accessoireUv = (Vector2Array)primitief.GetVertexAccessor("TEXCOORD_0").AsVector2Array();
         IntegerArray indexen = (IntegerArray)primitief.GetIndexAccessor().AsIndicesArray();
 
         List<float> vertexData = new List<float>();
-        foreach (uint deIndex in indexen) {
+        foreach(uint deIndex in indexen) {
           // We pakken hier de RAW posities (X, Y, Z) uit de glTF
           S.Vector3 positie = accessoirePositie[(int)deIndex];
           S.Vector2 plaatje = accessoireUv[(int)deIndex];
 
           vertexData.Add(positie.X);
-          vertexData.Add(1.0f - positie.Y);
+          vertexData.Add(positie.Y);
           vertexData.Add(positie.Z);
 
           vertexData.Add(plaatje.X);
@@ -80,72 +139,25 @@ public class TekenGltfModel {
         GL.VertexAttribPointer(1, 2, VertexAttribPointerType.Float, false, stride, 3 * sizeof(float));
         GL.EnableVertexAttribArray(1);
 
+        Texture onderdeelTexture = null;
+
+        // Vraag aan glTF welk plaatje bij dit onderdeel hoort
+        var materiaal = primitief.Material;
+        var baseColor = materiaal?.FindChannel("BaseColor");
+
+        if(baseColor?.Texture != null) {
+          var gltfImage = baseColor.Value.Texture.PrimaryImage;
+          // Laad de texture alleen als we hem nog niet hebben (bespaart geheugen)
+          onderdeelTexture = LaadTextureUitGltf(gltfImage);
+        }
+
         _GltfMeshOnderdeelOnderdelen.Add(new GltfMeshOnderdeel {
           Vao = vao,
           VertexCount = vertexData.Count / 5, // We delen door 5 omdat we X,Y,Z,U,V hebben
-          TargetNode = node
+          TargetNode = node,
+          TargetTexture = onderdeelTexture // Sla dit op per onderdeel!
         });
       }
     }
-  }
-  public void Teken(AlgemeneShader shader, TK.Vector3 wereldPositie, float schaal) {
-    shader.Gebruiken();
-    TK.Vector4 kleur;
-
-    int isMarker = GL.GetUniformLocation(shader.Handle, "isMarker");
-    int markerKleur = GL.GetUniformLocation(shader.Handle, "markerKleur");
-
-    GL.Uniform1(GL.GetUniformLocation(shader.Handle, "isMarker"), 0);
-
-    GL.Uniform1(isMarker, 0); // zet de marker modus aan in de shader
-
-    TK.Vector3 kleur3 = DiverseHelpFuncties.KleurVanClassNaam("huub");
-    kleur = new TK.Vector4(kleur3, 1.0f);
-
-    foreach (GltfMeshOnderdeel gltfMeshOnderdeel in _GltfMeshOnderdeelOnderdelen) {
-      // Bereken hiërarchie (voor de neus, armen etc.)
-      S.Matrix4x4 resultMatrix = GeefDeWereldMatrix(gltfMeshOnderdeel.TargetNode);
-      TK.Matrix4 localMatrix = ConverteerMatrix(resultMatrix);
-
-      // De Quake-as swap passen we nu pas toe op de uiteindelijke matrix
-      // We zetten de glTF (Y-up) om naar Quake (Z-up)
-      TK.Matrix4 quakeFix = TK.Matrix4.CreateRotationX(TK.MathHelper.DegreesToRadians(-90));
-
-      TK.Matrix4 worldMatrix = localMatrix * TK.Matrix4.CreateScale(schaal) * quakeFix * TK.Matrix4.CreateTranslation(wereldPositie);
-      GL.ActiveTexture(TextureUnit.Texture0);
-      Texture texture = new Texture(@"C:\werkdirectory\BlockbenchBestanden\SneeuwPopHuub\VolledigeSneeuwpop.png");
-      texture.Gebruik();
-
-      //GL.BindTexture(TextureTarget.Texture2D, texture.Handle);
-      GL.ActiveTexture(TextureUnit.Texture0);
-      GL.BindTexture(TextureTarget.Texture2D, texture.Handle);
-      shader.SetInt("uTexture", 0); // Vertel de shader dat hij unit 0 moet gebruiken
-
-      shader.SetMatrix4("model", worldMatrix);
-
-      GL.BindVertexArray(gltfMeshOnderdeel.Vao);
-      GL.DrawArrays(OpenTK.Graphics.OpenGL4.PrimitiveType.Triangles, 0, gltfMeshOnderdeel.VertexCount);
-    }
-
-    GL.Uniform1(isMarker, 0); // zet de marker modus uit in de shader
-
-  }
-
-  private S.Matrix4x4 GeefDeWereldMatrix(GLTF.Node node) {
-    var matrix = node.LocalMatrix;
-    var parent = node.VisualParent;
-
-    while (parent != null) {
-      matrix = matrix * parent.LocalMatrix;
-      parent = parent.VisualParent;
-    }
-    return matrix;
-  }
-  private TK.Matrix4 ConverteerMatrix(S.Matrix4x4 m) {
-    return new TK.Matrix4(
-        m.M11, m.M12, m.M13, m.M14,
-        m.M21, m.M22, m.M23, m.M24,
-        m.M31, m.M32, m.M33, m.M34,
-        m.M41, m.M42, m.M43, m.M44);
   }
 }

@@ -461,6 +461,11 @@ public class Lader {
         case "func_train":
         case "target_string":
         case "func_clock":
+        case "monster_hover":
+        case "target_crosslevel_trigger":
+        case "trigger_counter":
+        case "trigger_hurt":
+        case "weapon_hyperblaster":
           EntiteitenAlgemeen.Add(entiteitAlgemeen);
           break;
         default:
