@@ -92,43 +92,21 @@ public class TekenBlokjes {
 
     return Vector3.Zero;
   }
-  /**
-   * Poging om op de plaats van de soldier blokjes het model te tekenen, maar dat is nog niet gelukt. 
-   * De soldier blokjes zijn nu nog gewoon gekleurde kubusjes.
-   * */
+ 
   internal void TekenModel(AlgemeneShader shader, List<EntiteitAlgemeen> entiteitenAlgemeen, TekenGltfModel tekenModel) {
-    shader.Gebruiken();
-
-    //Vector4 kleur;
-    //int isMarker = GL.GetUniformLocation(shader.Handle, "isMarker");
-    //int markerKleur = GL.GetUniformLocation(shader.Handle, "markerKleur");
-
-    //GL.Uniform1(isMarker, 1); // zet de marker modus aan in de shader
-
-    GL.BindVertexArray(_vao);
-
+    // Forceer de shader om textures te gebruiken (isMarker = 0)
+    int isMarkerLoc = GL.GetUniformLocation(shader.Handle, "isMarker");
+    GL.Uniform1(isMarkerLoc, 0);
+    
     foreach(EntiteitAlgemeen entiteitAlgemeen in entiteitenAlgemeen) {
-      Vector3 nieuwePositie = ParseQuakeCoordinaten(entiteitAlgemeen.Positie.ToString());
-
-      // Bepaal kleur op basis van type
-      Vector3 kleur3 = DiverseHelpFuncties.KleurVanClassNaam(entiteitAlgemeen.ClassNaam);
-      //kleur = new Vector4(kleur3, 1.0f);
-
-      // De 'doel.Positie' is hier al de geconverteerde Vector3
-      Matrix4 model = Matrix4.CreateTranslation(entiteitAlgemeen.Positie);
-      shader.SetMatrix4("model", model);
-
-      //GL.Uniform4(markerKleur, kleur);
-      if (entiteitAlgemeen.ClassNaam.Contains("monster")
-        || entiteitAlgemeen.ClassNaam.Contains("soldier")) {
-        tekenModel.Teken(shader, entiteitAlgemeen.Positie, 30f);
-
+      if(entiteitAlgemeen.ClassNaam.Contains("monster") 
+        || entiteitAlgemeen.ClassNaam.Contains("soldier")
+        && !entiteitAlgemeen.ClassNaam.Contains("deadsoldier")) {
+        // Trek het model 32 units omlaag omdat het nulpunt bij de voeten ligt
+        Vector3 gecorrigeerdePos = entiteitAlgemeen.Positie + new Vector3(0, 0, -30);
+        tekenModel.Teken(shader, gecorrigeerdePos, 30f);
+        //tekenModel.Teken(shader, entiteitAlgemeen.Positie, 30f);
       }
-
-      //GL.DrawArrays(PrimitiveType.Triangles, 0, _vertexCount);
     }
-
-    //GL.Uniform1(isMarker, 0); // zet de marker modus uit in de shader
   }
-
 }

@@ -14,9 +14,6 @@ https://www.irfanview.com/plugins.htm
 Download en installeer IrfanView en de benodigde plugins.
 https://dappcdn.com/download/graphic-apps/irfanview?get=iview473_plugins_x64_setup.exe
 =========================================================================================================
-Voor het uitpakken van bsp bestanden kan ook BSPTwoMAP gebruikt worden.
-Uitpakken van .pak bestanden kan met PakScape.
-=========================================================================================================
 de .wal bestanden kunnen geconverteerd worden naar .png met Wally.
 https://valvedev.info/tools/wally/
 batch met: https://github.com/APAmk2/wal2png.git
