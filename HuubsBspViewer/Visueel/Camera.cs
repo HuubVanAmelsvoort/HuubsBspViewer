@@ -50,7 +50,7 @@ public class Camera {
     _rechtsLinks = MathHelper.DegreesToRadians(DiverseHelpFuncties.deStartHoek);
     _omhoogOmlaag = 0.0f;
 
-    Console.WriteLine($"Camera op positie: {_positie} _rechtsLinks: {_rechtsLinks} deStartHoek: {DiverseHelpFuncties.deStartHoek}");
+    DiverseHelpFuncties.SchrijfRegel($"Camera op positie: {_positie} _rechtsLinks: {_rechtsLinks} deStartHoek: {DiverseHelpFuncties.deStartHoek}");
 
     UpdateVectoren(); // !!! cruciaal bij start
   }

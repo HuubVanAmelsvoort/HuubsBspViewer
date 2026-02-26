@@ -11,7 +11,7 @@ namespace HuubsBspViewer {
     static void Main(string[] args) {
 
       if (args.Length < 2) {
-        Console.WriteLine("Gebruik: HuubsBspViewer <pad_naar_bsp_bestand> <model>");
+        DiverseHelpFuncties.SchrijfRegel("Gebruik: HuubsBspViewer <pad_naar_bsp_bestand> <model>");
         return;
       }
       DiverseHelpFuncties.BspPad = args[0];
@@ -21,7 +21,7 @@ namespace HuubsBspViewer {
           + Path.DirectorySeparatorChar
       + ".."
           + Path.DirectorySeparatorChar;
-      Lader lader = new Lader();
+      LadenEnVerzamelen lader = new LadenEnVerzamelen();
 
       DiverseHelpFuncties.BspPad = DiverseHelpFuncties.Dialoog("bsp");
       DiverseHelpFuncties.ModelPad = DiverseHelpFuncties.Dialoog("gltf");
@@ -29,7 +29,7 @@ namespace HuubsBspViewer {
       lader.LaadBspBestand(DiverseHelpFuncties.BspPad);
 
       BspBuilder bspBouwer = new();
-      List<TextureGroep> driehoeken = bspBouwer.GenereerDriehoeken(lader, DiverseHelpFuncties.textureAfmetingen);
+      List<PlaatjesGroep> driehoeken = bspBouwer.GenereerDriehoeken(lader, DiverseHelpFuncties.textureAfmetingen);
 
       DiverseHelpFuncties.ZoekStartPositieEnLuchtNaam(lader.entiteiten);
 

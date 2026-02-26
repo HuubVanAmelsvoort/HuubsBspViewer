@@ -93,7 +93,7 @@ public class TekenLucht {
         };
 
     for(int i = 0; i < paden.Count; i++) {
-      Console.WriteLine("Laden skybox: " + Path.GetFullPath(paden[i]));
+      DiverseHelpFuncties.SchrijfRegel("Laden skybox: " + Path.GetFullPath(paden[i]));
 
       using(Stream stream = File.OpenRead(paden[i])) {
         // Forceer 4 componenten voor consistentie, ook al is het 3 (RGB)

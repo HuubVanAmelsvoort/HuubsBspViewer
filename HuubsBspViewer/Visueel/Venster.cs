@@ -23,11 +23,11 @@ public class Venster : GameWindow {
   GeluidHelper geluidHelper = new GeluidHelper();
 
   private Botsing _botsing;
-  private Lader _lader;
+  private LadenEnVerzamelen _lader;
 
-  public Dictionary<string, Texture> _texturesTabel = new Dictionary<string, Texture>();
+  public Dictionary<string, Plaatje> _texturesTabel = new Dictionary<string, Plaatje>();
 
-  List<TextureGroep> _mapData;
+  List<PlaatjesGroep> _mapData;
   
   // Noclip variabele
   bool noclip = false;
@@ -38,8 +38,8 @@ public class Venster : GameWindow {
   //======== bericht ==============================================
   public Venster(GameWindowSettings gws
         , NativeWindowSettings nws
-        , Lader lader
-        , List<TextureGroep> mapData
+        , LadenEnVerzamelen lader
+        , List<PlaatjesGroep> mapData
         , Vector3 startPositie) : base(gws, nws) {
 
     _lader = lader;
@@ -51,7 +51,7 @@ public class Venster : GameWindow {
     _mapData = mapData;
     DiverseHelpFuncties._camera = _camera;
 
-    Console.WriteLine("Noclip is de N toets !!");
+    DiverseHelpFuncties.SchrijfRegel("Noclip is de N toets !!");
   }
   /**
    * Tijdens het laden van het venster
@@ -80,7 +80,7 @@ public class Venster : GameWindow {
 
     // 6. Textures Laden
 
-    Texture texture = new Texture("Quake2.png");
+    Plaatje texture = new Plaatje("Quake2.png");
 
     foreach(var naam in _lader.TextureNamen) {
       if(naam.Contains("trigger")) continue;
@@ -88,11 +88,11 @@ public class Venster : GameWindow {
       if(!_texturesTabel.ContainsKey(naam)) {
         string volledigePad = $"{DiverseHelpFuncties.basispadQuake2}/textures/{naam}.png";
         if(File.Exists(volledigePad)) {
-          _texturesTabel[naam] = new Texture(volledigePad);
+          _texturesTabel[naam] = new Plaatje(volledigePad);
         } else {
           // Gebruik placeholder als PNG niet bestaat
           if(!_texturesTabel.ContainsKey("placeholder"))
-            _texturesTabel["placeholder"] = new Texture("Quake2.png");
+            _texturesTabel["placeholder"] = new Plaatje("Quake2.png");
 
           _texturesTabel[naam] = _texturesTabel["placeholder"];
         }
@@ -123,6 +123,9 @@ public class Venster : GameWindow {
   protected override void OnUpdateFrame(FrameEventArgs e) {
     string titel = "";
     base.OnUpdateFrame(e);
+
+    // Update de animatie van de sneeuwpop
+    _tekenModel.UpdateAnimatie((float)e.Time);
 
     if(!IsFocused) {
       return; // Alleen bewegen als het venster actief is
@@ -208,14 +211,14 @@ public class Venster : GameWindow {
         geluidEntiteit.WasAlGeactiveerd = true;
         string hetGeluid = $"{DiverseHelpFuncties.basispadQuake2}/sound/{geluidEntiteit.GeluidPad}";
         geluidHelper.HaalBuffer(hetGeluid);
-        //Console.WriteLine($"Omgevingsgeluid starten: {hetGeluid}");
+        //DiverseHelpFuncties.SchrijfRegel($"Omgevingsgeluid starten: {hetGeluid}");
         geluidHelper.SpeelGeluid(hetGeluid, geluidEntiteit);
       } else {
-        Console.WriteLine($"Omgevingsgeluid al actief: {geluidEntiteit.GeluidPad}");
+        DiverseHelpFuncties.SchrijfRegel($"Omgevingsgeluid al actief: {geluidEntiteit.GeluidPad}");
       }
     } // eind foreach
 
-    Console.WriteLine($"Totaal omgevingsgeluiden gestart: {omgevingsGeluiden.Count}\n\n\n");
+    DiverseHelpFuncties.SchrijfRegel($"Totaal omgevingsgeluiden gestart: {omgevingsGeluiden.Count}\n\n\n");
   }
   /**
    * Hier afhankelijk van de beweging de nieuwe positie berekenen
@@ -279,7 +282,7 @@ public class Venster : GameWindow {
   }
 
   protected override void OnKeyDown(KeyboardKeyEventArgs e) {
-    //Console.WriteLine("Key down: " + e.Key.ToString());
+    //DiverseHelpFuncties.SchrijfRegel("Key down: " + e.Key.ToString());
 
     if(e.Key == GR.Keys.Escape) Close();
 
@@ -294,7 +297,7 @@ public class Venster : GameWindow {
     if(e.Key == GR.Keys.A) DiverseHelpFuncties.aIngedrukt = true;
   }
   protected override void OnKeyUp(KeyboardKeyEventArgs e) {
-    //Console.WriteLine("Key up: " + e.Key.ToString());
+    //DiverseHelpFuncties.SchrijfRegel("Key up: " + e.Key.ToString());
 
     if(e.Key == GR.Keys.W) DiverseHelpFuncties.wIngedrukt = false;
     if(e.Key == GR.Keys.S) DiverseHelpFuncties.sIngedrukt = false;
@@ -346,7 +349,7 @@ public class Venster : GameWindow {
     debugTekst = $"{debugTekst} modelIndex: {entiteitAlgemeenDoel.ModelIndex} MinimumCoordinaat: {entiteitAlgemeenDoel.MinimumCoordinaat}";
     debugTekst = $"{debugTekst} camera.Posistie: {camera.Positie}";
 
-    Console.WriteLine(debugTekst);
+    DiverseHelpFuncties.SchrijfRegel(debugTekst);
     var debugje = _lader.Modellen;
 
     // Zoek ALLE entiteiten die deze naam als doelnaam hebben
@@ -360,12 +363,12 @@ public class Venster : GameWindow {
     switch(entiteitAlgemeenDoel.ClassNaam) {
       case "target_speaker":
         hetGeluid = $"{DiverseHelpFuncties.basispadQuake2}/sound/{entiteitAlgemeenDoel.GeluidPad}";
-        //Console.WriteLine($"Activeert speaker: {doel.DoelNaam} met geluid: {hetGeluid}");
+        //DiverseHelpFuncties.SchrijfRegel($"Activeert speaker: {doel.DoelNaam} met geluid: {hetGeluid}");
         break;
       //====================================================================
       case "target_explosion":
         hetGeluid = $"{DiverseHelpFuncties.basispadQuake2}/sound/weapons/rocklx1a.wav"; // Standaard explosie
-        Console.WriteLine($"Activeert target_explosion: {entiteitAlgemeenDoel.DoelNaam} met geluid: {hetGeluid}");
+        DiverseHelpFuncties.SchrijfRegel($"Activeert target_explosion: {entiteitAlgemeenDoel.DoelNaam} met geluid: {hetGeluid}");
         break;
       //====================================================================
       case "monster_gunner":
@@ -427,18 +430,18 @@ public class Venster : GameWindow {
        break;
       ////====================================================================
       default:
-        Console.WriteLine($"Default in ActiveerHetDoel: {entiteitAlgemeenDoel.Doel} met naam {entiteitAlgemeenDoel.DoelNaam} heeft classnaam: {entiteitAlgemeenDoel.ClassNaam}");
+        DiverseHelpFuncties.SchrijfRegel($"Default in ActiveerHetDoel: {entiteitAlgemeenDoel.Doel} met naam {entiteitAlgemeenDoel.DoelNaam} heeft classnaam: {entiteitAlgemeenDoel.ClassNaam}");
         break;
     }
 
     if(monsterGevonden) {
       hetGeluid = $"{DiverseHelpFuncties.basispadQuake2}/sound/{monsterPad}.wav"; // Een 'wakker worden' geluid
-      Console.WriteLine($"Activeer monster: {entiteitAlgemeenDoel.DoelNaam} van class {entiteitAlgemeenDoel.ClassNaam} het geluid: {hetGeluid}");
+      DiverseHelpFuncties.SchrijfRegel($"Activeer monster: {entiteitAlgemeenDoel.DoelNaam} van class {entiteitAlgemeenDoel.ClassNaam} het geluid: {hetGeluid}");
     }
 
     if(!string.IsNullOrEmpty(hetGeluid)) {
       geluidHelper.SpeelGeluid(hetGeluid, entiteitAlgemeenDoel);
-      Console.WriteLine($"[Actie] {entiteitAlgemeenDoel.ClassNaam} geluid gemaakt: {hetGeluid}");
+      DiverseHelpFuncties.SchrijfRegel($"[Actie] {entiteitAlgemeenDoel.ClassNaam} geluid gemaakt: {hetGeluid}");
     }
   }
 

@@ -1,9 +1,9 @@
 ﻿using OpenTK.Mathematics;
 public class BspBuilder {
 
-  public List<TextureGroep> GenereerDriehoeken(Lader lader, Dictionary<string, (int W, int H)> afmetingen) {
+  public List<PlaatjesGroep> GenereerDriehoeken(LadenEnVerzamelen lader, Dictionary<string, (int W, int H)> afmetingen) {
     // We gebruiken een Dictionary om vertices per textuur te groeperen
-    Dictionary<string, TextureGroep> groepen = new Dictionary<string, TextureGroep>();
+    Dictionary<string, PlaatjesGroep> groepen = new Dictionary<string, PlaatjesGroep>();
     int texBreedte = 128; // Haal dit uit je geladen Texture object
     int texHoogte = 128;
 
@@ -24,7 +24,7 @@ public class BspBuilder {
 
       // 2. Als we deze textuur nog niet eerder hebben gezien, maak een nieuwe lijst aan
       if(!groepen.ContainsKey(texNaam)) {
-        groepen[texNaam] = new TextureGroep {
+        groepen[texNaam] = new PlaatjesGroep {
           TextureNaam = texNaam
         };
       }

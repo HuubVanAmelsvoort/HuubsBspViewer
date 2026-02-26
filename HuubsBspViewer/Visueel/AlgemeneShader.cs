@@ -49,7 +49,7 @@ public class AlgemeneShader { // basis om vanaf te leiden
     GL.GetShader(shader, ShaderParameter.CompileStatus, out int success);
     if(success == 0) {
       string infoLog = GL.GetShaderInfoLog(shader);
-      Console.WriteLine($"ERROR: {type} Shader Compilatie mislukt:\n{infoLog}");
+      DiverseHelpFuncties.SchrijfRegel($"ERROR: {type} Shader Compilatie mislukt:\n{infoLog}");
     }
   }
 
@@ -57,7 +57,7 @@ public class AlgemeneShader { // basis om vanaf te leiden
     GL.GetProgram(program, GetProgramParameterName.LinkStatus, out int success);
     if(success == 0) {
       string infoLog = GL.GetProgramInfoLog(program);
-      Console.WriteLine($"ERROR: Shader Linken mislukt:\n{infoLog}");
+      DiverseHelpFuncties.SchrijfRegel($"ERROR: Shader Linken mislukt:\n{infoLog}");
     }
   }
   internal void SetVector4(string naam, Vector4 data) {

@@ -2,22 +2,22 @@
 using SharpGLTF.Schema2;
 using System.Text;
 using SharpGLTF.Memory;
-public class Lader {
+public class LadenEnVerzamelen {
   public enum DatablokTiepe {
-    Entities = 0,
-    Planes = 1,
-    Vertices = 2,
-    Visibility = 3,
+    Entiteiten = 0,
+    Vlakken = 1,
+    Driehoeken = 2,
+    Zichtbaar = 3,
     Nodes = 4,
-    TexInfo = 5,
-    Faces = 6,
-    Lightmaps = 7,
-    Leaves = 8,
-    LeafFaces = 9,
+    PlaatjeInformatie = 5,
+    Polygonen = 6,
+    LichtMappen = 7,
+    Bladknopen = 8,
+    Bladvakken = 9,
     LeafBrushes = 10,
-    Edges = 11,
-    SurfEdges = 12,
-    Models = 13,
+    Hoeken = 11,
+    WandelHoeken = 12,
+    Modellen = 13,
     Brushes = 14,
     BrushSides = 15,
     Pop = 16,
@@ -50,16 +50,16 @@ public class Lader {
       // 3. Alle secties vullen met behulp van de Enum
       DataBlokken = LeesKop(reader);
 
-      LeesPlanes(reader, DataBlokken[(int)DatablokTiepe.Planes]);
-      LeesHoekpunten(reader, DataBlokken[(int)DatablokTiepe.Vertices]);
+      LeesPlanes(reader, DataBlokken[(int)DatablokTiepe.Vlakken]);
+      LeesHoekpunten(reader, DataBlokken[(int)DatablokTiepe.Driehoeken]);
       LeesKnooppunten(reader, DataBlokken[(int)DatablokTiepe.Nodes]);
-      LeesVlakken(reader, DataBlokken[(int)DatablokTiepe.Faces]);
-      LeesBladeren(reader, DataBlokken[(int)DatablokTiepe.Leaves]);
-      LeesRanden(reader, DataBlokken[(int)DatablokTiepe.Edges]);
-      LeesSurfEdges(reader, DataBlokken[(int)DatablokTiepe.SurfEdges]);
-      LeesTextureInfos(reader, DataBlokken[(int)DatablokTiepe.TexInfo]);
-      LeesEntiteiten(reader, DataBlokken[(int)DatablokTiepe.Entities]);
-      LeesModellen(reader, DataBlokken[(int)DatablokTiepe.Models]);
+      LeesVlakken(reader, DataBlokken[(int)DatablokTiepe.Polygonen]);
+      LeesBladeren(reader, DataBlokken[(int)DatablokTiepe.Bladknopen]);
+      LeesRanden(reader, DataBlokken[(int)DatablokTiepe.Hoeken]);
+      LeesSurfEdges(reader, DataBlokken[(int)DatablokTiepe.WandelHoeken]);
+      LeesTextureInfos(reader, DataBlokken[(int)DatablokTiepe.PlaatjeInformatie]);
+      LeesEntiteiten(reader, DataBlokken[(int)DatablokTiepe.Entiteiten]);
+      LeesModellen(reader, DataBlokken[(int)DatablokTiepe.Modellen]);
 
       VerwerkEntiteiten();
       LeesShader();
@@ -97,10 +97,10 @@ public class Lader {
       DiverseHelpFuncties.vertexCode = File.ReadAllText("Shaders/shader.vert.cs");
       DiverseHelpFuncties.fragmentCodeLucht = File.ReadAllText("Shaders/lucht.frag.cs");
       DiverseHelpFuncties.vertexCodeLucht = File.ReadAllText("Shaders/lucht.vert.cs");
-      // Console.WriteLine(BspHelper.fragmentCode);
-      // Console.WriteLine(BspHelper.vertexCode);
+      // DiverseHelpFuncties.SchrijfRegel(BspHelper.fragmentCode);
+      // DiverseHelpFuncties.SchrijfRegel(BspHelper.vertexCode);
     } catch(Exception e) {
-      Console.WriteLine($"Er is een fout opgetreden: {e.Message}");
+      DiverseHelpFuncties.SchrijfRegel($"Er is een fout opgetreden: {e.Message}");
     }
   }
 
@@ -331,9 +331,6 @@ public class Lader {
         entiteitAlgemeen.Verzwakking = entiteit.Attributen["attenuation"];
       }
 
-      //entiteitAlgemeen.MinimumCoordinaat = new();
-      //entiteitAlgemeen.MaximumCoordinaat = new();
-
       if(entiteit.Attributen.ContainsKey("model") && entiteit.Attributen["model"].StartsWith("*")) {
         string modelSleutel = entiteit.Attributen["model"]; // bijv. "*1"
         int modelIndex = int.Parse(modelSleutel.Substring(1));
@@ -344,7 +341,7 @@ public class Lader {
           entiteitAlgemeen.MinimumCoordinaat = model.MinimumCoordinaat;
           entiteitAlgemeen.MaximumCoordinaat = model.MaximumCoordinaat;
         } else {
-          Console.WriteLine($"Model index {modelIndex} ligt buiten het bereik van beschikbare modellen.");
+          DiverseHelpFuncties.SchrijfRegel($"Model index {modelIndex} ligt buiten het bereik van beschikbare modellen.");
         }
       }
 
@@ -361,7 +358,7 @@ public class Lader {
         entiteitAlgemeen.GedragVlaggenTekst = entiteit.Attributen["spawnflags"];
         bool gelukt = int.TryParse(entiteitAlgemeen.GedragVlaggenTekst, out entiteitAlgemeen.GedragVlaggen);
         if(!gelukt) {
-          Console.WriteLine($"Kan spawnflags niet parsen: {entiteitAlgemeen.GedragVlaggenTekst}");
+          DiverseHelpFuncties.SchrijfRegel($"Kan spawnflags niet parsen: {entiteitAlgemeen.GedragVlaggenTekst}");
         }
       }
       if(entiteit.Attributen.ContainsKey("dmg")) {
@@ -470,31 +467,9 @@ public class Lader {
           break;
         default:
           EntiteitenAlgemeen.Add(entiteitAlgemeen);
-          Console.WriteLine($"Onbekende entiteit: {classNaam}");
+          DiverseHelpFuncties.SchrijfRegel($"Onbekende entiteit: {classNaam}");
           break;
       }
     } // eind foreach
   }
-  /**
-   * Proberen om een Blockbench model te laden via SharpGLTF.
-   * en later weer te geven in OpenTK.
-   */
-  //public void LaadBlockbenchModel(string padNaarDeGltf) {
-  //  HetModel = ModelRoot.Load(padNaarDeGltf);
-
-  //  // 1. Loop door de meshes (de cubes uit Blockbench)
-  //  foreach(Mesh mesh in HetModel.LogicalMeshes) {
-  //    foreach(MeshPrimitive primitive in mesh.Primitives) {
-  //      // Haal de vertex posities op via de Accessor
-  //      Accessor accessor = primitive.GetVertexAccessor("POSITION");
-
-  //      positions = (Vector3Array)accessor.AsVector3Array();
-
-  //      // Voor de indices (de volgorde van driehoeken tekenen)
-  //      IntegerArray indices = (IntegerArray)primitive.GetIndexAccessor().AsIndicesArray();
-
-  //      // Nu kun je deze data naar je eigen BufferObjects sturen
-  //    }
-  //  }
-  //}
 }

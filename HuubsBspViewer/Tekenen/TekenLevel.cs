@@ -3,7 +3,7 @@
 public class TekenLevel {
   // We slaan nu per textuur de GPU-data op
   private Dictionary<string, (int vao, int vbo, int aantal)> MurenEnPlaatjes = new();
-  public void Voorbereiden(List<TextureGroep> groepen) {
+  public void Voorbereiden(List<PlaatjesGroep> groepen) {
     foreach (var groep in groepen) {
       string texNaam = groep.TextureNaam.ToLower(); // Veiligheidshalve lowercase
       if(texNaam.Contains("sky")
@@ -16,7 +16,7 @@ public class TekenLevel {
         continue;
       }
       
-      //Console.WriteLine($"Voorbereiden textuur: {texNaam}");
+      //DiverseHelpFuncties.SchrijfRegel($"Voorbereiden textuur: {texNaam}");
 
       texNaam = groep.TextureNaam;
       float[] data = groep.VertexData.ToArray(); // Hier zet je de List om naar Array
@@ -53,14 +53,14 @@ public class TekenLevel {
   /**
    * Tekent alle muren en plaatjes die we hebben voorbereid
    */
-  public void TekenenVanHetLevel(Dictionary<string, Texture> geladenTextures, AlgemeneShader shader) {
+  public void TekenenVanHetLevel(Dictionary<string, Plaatje> geladenTextures, AlgemeneShader shader) {
     foreach (KeyValuePair<string, (int vao, int vbo, int aantal)> muurEnPlaatje in MurenEnPlaatjes) {
       string texNaam = muurEnPlaatje.Key;
       var (VertexArrayObjectInstructies, VertexBufferObjectMagazijn, aantal) = muurEnPlaatje.Value;
 
       // 1. Activeer de juiste textuur voor deze batch
       if (geladenTextures.ContainsKey(texNaam)) {
-        geladenTextures[texNaam].Gebruik();
+        geladenTextures[texNaam].BindHetPlaatje();
       }
 
       // 2. Teken de muren die bij deze textuur horen

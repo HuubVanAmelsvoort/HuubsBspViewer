@@ -1,8 +1,8 @@
 ﻿using OpenTK.Mathematics;
 
 public class Botsing {
-  private readonly Lader _data;
-  public Botsing(Lader geladenData) {
+  private readonly LadenEnVerzamelen _data;
+  public Botsing(LadenEnVerzamelen geladenData) {
     _data = geladenData; // We gebruiken de reeds geladen data
   }
   public Vector3 ValideerVerplaatsing(Vector3 huidigePos, Vector3 doelPos) {
@@ -19,7 +19,7 @@ public class Botsing {
     if (knoopIndex < 0) {
       int bladIndex = ~knoopIndex; // Bitwise NOT om de echte index te krijgen
       var blad = _data.Bladeren[bladIndex];
-      //Console.WriteLine($"blad.Inhoud: {blad.Inhoud}");
+      //DiverseHelpFuncties.SchrijfRegel($"blad.Inhoud: {blad.Inhoud}");
       // In Quake 2 BSP: 
       // CONTENTS_SOLID is 1. We kijken of dit bitje aan staat.
       return (blad.Inhoud & 1) != 0;

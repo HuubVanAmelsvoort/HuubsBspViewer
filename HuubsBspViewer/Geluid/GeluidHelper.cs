@@ -10,9 +10,8 @@ public class GeluidHelper {
     _device = ALC.OpenDevice(null);
     _context = ALC.CreateContext(_device, (int[])null);
     ALC.MakeContextCurrent(_context);
-    //AL.DistanceModel(ALDistanceModel.InverseDistanceClamped);
-
-    Console.WriteLine("OpenAL hardware is opgestart.");
+ 
+    DiverseHelpFuncties.SchrijfRegel("OpenAL hardware is opgestart.");
 
   }
   public int HaalBuffer(string pad) {
@@ -42,11 +41,11 @@ public class GeluidHelper {
     debugTekst = $"{debugTekst} isLopen: {isLopen} isGlobaal: {isGlobaal} IsActief: {entiteitAlgemeenDoel.IsActief}";
 
     // 3. Haal de buffer (doe dit VOORDAT je een bron claimt)
-    Console.WriteLine(debugTekst);
+    DiverseHelpFuncties.SchrijfRegel(debugTekst);
 
     int buffer = HaalBuffer(bestandPad);
     if(buffer <= 0) {
-      Console.WriteLine($"FOUT: Buffer ongeldig voor {bestandPad}.");
+      DiverseHelpFuncties.SchrijfRegel($"FOUT: Buffer ongeldig voor {bestandPad}.");
       return;
     }
 
@@ -90,7 +89,7 @@ public class GeluidHelper {
     // Als je OpenAL gebruikt, heb je een SourceId nodig die bij dit doel hoort
     // Zoek de actieve speaker (Source ID) op die bij deze specifieke entiteit hoort
     if(_actieveBronnen.TryGetValue(entiteit, out int sourceId)) {
-      //if (volume > 0) Console.WriteLine($"volume: {volume}");
+      //if (volume > 0) DiverseHelpFuncties.SchrijfRegel($"volume: {volume}");
       AL.Source(sourceId, ALSourcef.Gain, volume);
     }
   }

@@ -3,10 +3,10 @@ using System.Runtime.InteropServices;
 public static class WavLader {
   public static int LaadWav(string bestandsNaam) {
     if(!File.Exists(bestandsNaam)) {
-      Console.WriteLine($"In LaadWav bestandsNaam: {bestandsNaam} bestaat niet!!!!");
+      DiverseHelpFuncties.SchrijfRegel($"In LaadWav bestandsNaam: {bestandsNaam} bestaat niet!!!!");
       return -1;
     }
-    Console.WriteLine($"In LaadWav bestandsNaam: {bestandsNaam}");
+    DiverseHelpFuncties.SchrijfRegel($"In LaadWav bestandsNaam: {bestandsNaam}");
 
     using(BinaryReader reader = new BinaryReader(File.OpenRead(bestandsNaam))) {
       // RIFF header
@@ -19,7 +19,7 @@ public static class WavLader {
       reader.ReadInt32(); // Chunk size
       short audioFormat = reader.ReadInt16(); // 1 = PCM
       if(audioFormat != 1) { // 1 = PCM, alles anders is gecomprimeerd
-        Console.WriteLine($"FOUT: {bestandsNaam} is geen PCM maar formaat {audioFormat}");
+        DiverseHelpFuncties.SchrijfRegel($"FOUT: {bestandsNaam} is geen PCM maar formaat {audioFormat}");
       }
       short channels = reader.ReadInt16();
       int sampleRate = reader.ReadInt32();
@@ -49,7 +49,7 @@ public static class WavLader {
         handle.Free();
       }
 
-      Console.WriteLine($"Laden: {bestandsNaam} - Kanalen: {channels}, Bits: {bitsPerSample}, Rate: {sampleRate}");
+      DiverseHelpFuncties.SchrijfRegel($"Laden: {bestandsNaam} - Kanalen: {channels}, Bits: {bitsPerSample}, Rate: {sampleRate}");
 
       return buffer;
     }

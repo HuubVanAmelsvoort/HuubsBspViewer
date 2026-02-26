@@ -1,10 +1,14 @@
-﻿using StbImageSharp;
-using OpenTK.Audio.OpenAL;
+﻿using OpenTK.Audio.OpenAL;
 using OpenTK.Compute.OpenCL;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
+using SharpGLTF.Schema2;
+using StbImageSharp;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
+using S = System.Numerics;
+using TK = OpenTK.Mathematics;
 
 public static class DiverseHelpFuncties {
 
@@ -39,22 +43,22 @@ public static class DiverseHelpFuncties {
   internal static string ModelPad;
   internal static string BspPad;
 
-  internal static void ConsoleLog(string tekst, Lader lader) {
-    Console.WriteLine("[HuubsBspViewer] " + tekst);
-    Console.WriteLine("[HuubsBspViewer] Aantal vlakken in map: " + lader.Vlakken.Count);
-    Console.WriteLine("[HuubsBspViewer] Aantal hoekpunten in map: " + lader.Hoekpunten.Count);
-    Console.WriteLine("[HuubsBspViewer] Aantal randen in map: " + lader.Randen.Count);
-    Console.WriteLine("[HuubsBspViewer] Aantal bladeren in map: " + lader.Bladeren.Count);
-    Console.WriteLine("[HuubsBspViewer] Aantal knooppunten in map: " + lader.Knooppunten.Count);
-    Console.WriteLine("[HuubsBspViewer] Aantal planes in map: " + lader.Planes.Count);
-    Console.WriteLine("[HuubsBspViewer] Aantal surfedges in map: " + lader.SurfEdges.Count);
-    Console.WriteLine("[HuubsBspViewer] Aantal texture infos in map: " + lader.TextureInfos.Count);
-    Console.WriteLine("[HuubsBspViewer] Aantal entiteiten in map: " + lader.entiteiten.Count);
+  internal static void ConsoleLog(string tekst, LadenEnVerzamelen lader) {
+    DiverseHelpFuncties.SchrijfRegel("[HuubsBspViewer] " + tekst);
+    DiverseHelpFuncties.SchrijfRegel("[HuubsBspViewer] Aantal vlakken in map: " + lader.Vlakken.Count);
+    DiverseHelpFuncties.SchrijfRegel("[HuubsBspViewer] Aantal hoekpunten in map: " + lader.Hoekpunten.Count);
+    DiverseHelpFuncties.SchrijfRegel("[HuubsBspViewer] Aantal randen in map: " + lader.Randen.Count);
+    DiverseHelpFuncties.SchrijfRegel("[HuubsBspViewer] Aantal bladeren in map: " + lader.Bladeren.Count);
+    DiverseHelpFuncties.SchrijfRegel("[HuubsBspViewer] Aantal knooppunten in map: " + lader.Knooppunten.Count);
+    DiverseHelpFuncties.SchrijfRegel("[HuubsBspViewer] Aantal planes in map: " + lader.Planes.Count);
+    DiverseHelpFuncties.SchrijfRegel("[HuubsBspViewer] Aantal surfedges in map: " + lader.SurfEdges.Count);
+    DiverseHelpFuncties.SchrijfRegel("[HuubsBspViewer] Aantal texture infos in map: " + lader.TextureInfos.Count);
+    DiverseHelpFuncties.SchrijfRegel("[HuubsBspViewer] Aantal entiteiten in map: " + lader.entiteiten.Count);
     // 2. Animaties ophalen
     //var animaties = model.LogicalAnimations.FirstOrDefault();
     //foreach(var animatie in lader.HetModel.LogicalAnimations) {
     //  var naam = animatie.Name;
-    //  Console.WriteLine($"Animatie gevonden: {naam}");
+    //  DiverseHelpFuncties.SchrijfRegel($"Animatie gevonden: {naam}");
     //}
     // Gebruik animation.Animatible om de transformaties per frame te berekenen
 
@@ -66,9 +70,19 @@ public static class DiverseHelpFuncties {
     if(severity == DebugSeverity.DebugSeverityNotification) return; // negeer notificaties
 
     string msg = Marshal.PtrToStringAnsi(message, length);
-    Console.WriteLine($"[GL DEBUG] {msg}");
+    SchrijfRegel($"[GL DEBUG] {msg}");
   }
-  public static List<Vector3> HaalVlakPuntenOp(BspVlak vlak, Lader lader) {
+  /**
+   * Voor tijdens het debuggen.
+   */
+  public static void SchrijfRegel(string tekst) {
+    Debug.WriteLine(tekst);
+#if DEBUG
+    Console.WriteLine(tekst);
+#endif
+  }
+
+  public static List<Vector3> HaalVlakPuntenOp(BspVlak vlak, LadenEnVerzamelen lader) {
     List<Vector3> vlijst = new List<Vector3>();
     for(int i = 0; i < vlak.AantalEdges; i++) {
       int surfEdgeIndex = lader.SurfEdges[vlak.EersteEdgeIndex + i];
@@ -359,7 +373,7 @@ public static class DiverseHelpFuncties {
         break;
       default:
         kleurLijn = new Vector3(0, 1, 1); // Cyaan
-        Console.WriteLine($"Default in trigger: {classNaam}");
+        DiverseHelpFuncties.SchrijfRegel($"Default in trigger: {classNaam}");
         break;
     }
     return kleurLijn;
@@ -370,16 +384,16 @@ public static class DiverseHelpFuncties {
   internal static void ControleerGLFout(string herkomst) {
     ALError fout = AL.GetError();
     if(fout != ALError.NoError) {
-      Console.WriteLine($"OpenAL Fout bij herkomst: {fout}");
+      DiverseHelpFuncties.SchrijfRegel($"OpenAL Fout bij herkomst: {fout}");
     }
     //GLErrorCode glFout = GL.GetError();
 
     OpenTK.Graphics.OpenGL.ErrorCode glFout = GL.GetError();
     if(glFout != OpenTK.Graphics.OpenGL.ErrorCode.NoError) {
-      Console.WriteLine($"glFout bij herkomst: {glFout}");
+      DiverseHelpFuncties.SchrijfRegel($"glFout bij herkomst: {glFout}");
     }
   }
-  public static void LadenAfmetingen(Lader lader) {
+  public static void LadenAfmetingen(LadenEnVerzamelen lader) {
     foreach(var naam in lader.TextureNamen) {
       string pad = $"{basispadQuake2}/textures/{naam}.png"; // Pas aan naar jouw pad
       if(File.Exists(pad)) {
@@ -397,7 +411,7 @@ public static class DiverseHelpFuncties {
 
   internal static string Dialoog(string soortBestand) {
 
-    using (OpenFileDialog openFileDialog = new OpenFileDialog()) {
+    using(OpenFileDialog openFileDialog = new OpenFileDialog()) {
       switch(soortBestand) {
         case "bsp":
           openFileDialog.Title = "Selecteer een Quake 2 BSP bestand";
@@ -420,13 +434,34 @@ public static class DiverseHelpFuncties {
       openFileDialog.RestoreDirectory = true;
 
       // 2. Toon de dialoog en check of de gebruiker op 'OK' heeft geklikt
-      if (openFileDialog.ShowDialog() == DialogResult.OK) {
+      if(openFileDialog.ShowDialog() == DialogResult.OK) {
         return openFileDialog.FileName;
       } else {
-        Console.WriteLine("Geen bestand geselecteerd. Programma sluit.");
+        DiverseHelpFuncties.SchrijfRegel("Geen bestand geselecteerd. Programma sluit.");
         Environment.Exit(-1);
         return null; // Deze regel zal nooit bereikt worden, maar is nodig om te compileren
       }
     }
+  }
+  public static TK.Matrix4 ConverteerMatrix(S.Matrix4x4 m) {
+    return new TK.Matrix4(
+        m.M11, m.M12, m.M13, m.M14,
+        m.M21, m.M22, m.M23, m.M24,
+        m.M31, m.M32, m.M33, m.M34,
+        m.M41, m.M42, m.M43, m.M44);
+  }
+  public static S.Matrix4x4 GeefDeWereldMatrix(Node node) {
+    // Begin met de lokale matrix van de node zelf
+    var wereldMatrix = node.LocalTransform.Matrix;
+
+    // Loop omhoog naar de 'VisualParent' (de ouder in de boomstructuur)
+    Node ouder = node.VisualParent;
+    while(ouder != null) {
+      // Belangrijk: Matrix vermenigvuldiging volgorde is cruciaal
+      wereldMatrix = S.Matrix4x4.Multiply(wereldMatrix, ouder.LocalTransform.Matrix);
+      ouder = ouder.VisualParent;
+    }
+
+    return wereldMatrix;
   }
 }
