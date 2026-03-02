@@ -28,7 +28,7 @@ public class Venster : GameWindow {
   public Dictionary<string, Plaatje> _texturesTabel = new Dictionary<string, Plaatje>();
 
   List<PlaatjesGroep> _mapData;
-  
+
   // Noclip variabele
   bool noclip = false;
 
@@ -152,7 +152,7 @@ public class Venster : GameWindow {
 */
   protected override void OnRenderFrame(FrameEventArgs e) {
     base.OnRenderFrame(e);
-    
+
     GL.Viewport(0, 0, Size.X, Size.Y);
 
     GL.BindVertexArray(0); // zorg dat er geen VAO actief is
@@ -180,13 +180,13 @@ public class Venster : GameWindow {
     var deSchaal = 32;
     var verderZetten = new Vector3(0, -100, 0);
     _tekenModel.Teken(_shader, DiverseHelpFuncties.startPos + verderZetten, deSchaal);
-    
+
     _tekenBlokjes.TekenModel(_shader, _lader.EntiteitenAlgemeen, _tekenModel);
 
     // Volgens mij moet hier het doel van de entiteit bepaald worden
     // en dan gehaald uit het model "*2" of "*36" etc.
 
-    LoopDoorDeWereldCheckTrigger(); 
+    LoopDoorDeWereldCheckTrigger();
 
     if(!string.IsNullOrEmpty(_huidigBericht)) {
       TekenTekstOverlay(_huidigBericht);
@@ -297,8 +297,7 @@ public class Venster : GameWindow {
     if(e.Key == GR.Keys.A) DiverseHelpFuncties.aIngedrukt = true;
   }
   protected override void OnKeyUp(KeyboardKeyEventArgs e) {
-    //DiverseHelpFuncties.SchrijfRegel("Key up: " + e.Key.ToString());
-
+ 
     if(e.Key == GR.Keys.W) DiverseHelpFuncties.wIngedrukt = false;
     if(e.Key == GR.Keys.S) DiverseHelpFuncties.sIngedrukt = false;
     if(e.Key == GR.Keys.D) DiverseHelpFuncties.dIngedrukt = false;
@@ -316,13 +315,7 @@ public class Venster : GameWindow {
 
     // 2. Zet de projectie op 2D (pixels in plaats van 3D coördinaten)
     var ortho = Matrix4.CreateOrthographicOffCenter(0, Size.X, Size.Y, 0, -1, 1);
-    // Stuur deze matrix naar een simpele tekst-shader of gebruik GL.WindowByProperty als je die hebt
-
-    //int location = GL.GetUniformLocation(tekstShaderHandle, "uProjection");
-    //GL.UniformMatrix4(location, false, ref orthoMatrix);
-
-    // Gebruik je een bibliotheek zoals QuickFont of ImGui? 
-    // Zo niet, dan is de console-titel nog steeds de 'cleanste' manier zonder shaders te schrijven:
+ 
     Title = $"Dit is de tekst uit het Venster - {tekst}";
     GL.Enable(EnableCap.DepthTest);
   }
@@ -383,7 +376,7 @@ public class Venster : GameWindow {
         monsterPad = "soldier/SOLSGHT1";
         monsterGevonden = true;
         break;
-      case "monster_soldier_ss": 
+      case "monster_soldier_ss":
         monsterPad = "soldier/SOLSRCH1"; // kan verder niet iets vinden
         monsterGevonden = true;
         break;
@@ -393,7 +386,7 @@ public class Venster : GameWindow {
         break;
 
       case "func_button":
-        monsterPad = "switches/butn2"; 
+        monsterPad = "switches/butn2";
         monsterGevonden = true;
         break;
       case "func_door":
@@ -427,7 +420,7 @@ public class Venster : GameWindow {
           // Als er geen boodschap is, toon dan wat we activeren
           ToonBericht($"Activeren:  {entiteitAlgemeenDoel.ClassNaam} / {entiteitAlgemeenDoel.DoelNaam} / {entiteitAlgemeenDoel.Doel}");
         }
-       break;
+        break;
       ////====================================================================
       default:
         DiverseHelpFuncties.SchrijfRegel($"Default in ActiveerHetDoel: {entiteitAlgemeenDoel.Doel} met naam {entiteitAlgemeenDoel.DoelNaam} heeft classnaam: {entiteitAlgemeenDoel.ClassNaam}");

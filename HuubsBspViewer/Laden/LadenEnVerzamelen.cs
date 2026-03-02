@@ -463,6 +463,18 @@ public class LadenEnVerzamelen {
         case "trigger_counter":
         case "trigger_hurt":
         case "weapon_hyperblaster":
+        case "monster_berserk":
+        case "info_notnull":
+        case "misc_teleporter_dest":
+        case "misc_teleporter":
+        case "monster_tank":
+        case "item_health_mega":
+        case "item_pack":
+        case "info_null":
+        case "item_armor_body":
+        case "monster_supertank":
+        case "target_temp_entity":
+        case "misc_viper":
           EntiteitenAlgemeen.Add(entiteitAlgemeen);
           break;
         default:

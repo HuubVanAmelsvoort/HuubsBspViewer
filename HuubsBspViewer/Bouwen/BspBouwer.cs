@@ -1,5 +1,5 @@
 ﻿using OpenTK.Mathematics;
-public class BspBuilder {
+public class BspBouwer {
 
   public List<PlaatjesGroep> GenereerDriehoeken(LadenEnVerzamelen lader, Dictionary<string, (int W, int H)> afmetingen) {
     // We gebruiken een Dictionary om vertices per textuur te groeperen

@@ -28,7 +28,7 @@ namespace HuubsBspViewer {
 
       lader.LaadBspBestand(DiverseHelpFuncties.BspPad);
 
-      BspBuilder bspBouwer = new();
+      BspBouwer bspBouwer = new();
       List<PlaatjesGroep> driehoeken = bspBouwer.GenereerDriehoeken(lader, DiverseHelpFuncties.textureAfmetingen);
 
       DiverseHelpFuncties.ZoekStartPositieEnLuchtNaam(lader.entiteiten);
